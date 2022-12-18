@@ -2,7 +2,7 @@ from App.Helpers import *
 from App.eventsApi import events
 from services.general.services import services
 from events.events import events as ev
-from typing import Callable
+from commands.commands import commands
 class application:
     def __init__(self, debug:bool = False) -> None:
         # Register App in mem
@@ -10,10 +10,12 @@ class application:
         # Set app debug mode & operating sys
         self.DEBUG = debug;debugMsg("debug mode is Activated");self.OS = get_os_distro()
         self.loopTimeout = 0.1
-        self.events = events(self)
+        self.eventsApi = events(self)
+        self.events : ev
         self.services : services
+        self.commands : commands
         # launch creating event
-        self.events.app_created()
+        self.eventsApi.app_created()
 
     def initiate(self) -> None:
         """
@@ -24,7 +26,7 @@ class application:
         app = getApplication(False)\n
         app.initiate()
         """
-        self.events.app_starting()
+        self.eventsApi.app_starting()
         print("Application Started ...")
         self.loop()
 
@@ -33,9 +35,9 @@ class application:
         while True:
             try:
                 sleep(self.loopTimeout)
-                self.events.app_loop_before()
-                self.events.app_loop_process()
-                self.events.app_loop_after()
+                self.eventsApi.app_loop_before()
+                self.eventsApi.app_loop_process()
+                self.eventsApi.app_loop_after()
 
             except KeyboardInterrupt:
                 break
@@ -43,12 +45,13 @@ class application:
             except BaseException as err:
                 applogE("Application loop catched an error : ", traceback.format_exc())
                 continue
-
+        self.eventsApi.app_closed()
+        
     def close(self):
         raise KeyboardInterrupt
 
     def __del__(self) -> None:
-        self.events.app_closed()
+        pass
 
 
 

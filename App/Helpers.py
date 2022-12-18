@@ -8,6 +8,7 @@ from time import *
 from peewee import SqliteDatabase
 from uuid import uuid4 as uid
 from inspect import getframeinfo, stack
+from App.typehints import *
 import traceback
 import importlib
 # Helpers

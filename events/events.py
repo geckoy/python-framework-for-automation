@@ -36,6 +36,7 @@ class events:
             cls = getattr(m, n)
             if issubclass(cls, BaseListener):
                 self.add_event(event(n, cls, filePath, self.app))
+                debugMsg("loaded Event : {}", filePath)
             
     def run(self, event:str) -> None:
         """

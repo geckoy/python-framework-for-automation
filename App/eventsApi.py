@@ -22,7 +22,7 @@ class events:
     def app_starting(self) -> None:
         """
         ### Explanation:
-        this event is launched before starting the loop method.
+        this event is launched before starting the loop method. "here where application services and processes start to register only push to app don't fetch or exec commands"
         ### return:
         None
         """
