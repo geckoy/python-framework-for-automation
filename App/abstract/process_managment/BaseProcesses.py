@@ -1,7 +1,7 @@
 from App.Helpers import *
+from abc import ABC, abstractmethod
 from App.abstract.process_managment.BaseProcess import BaseProcess
 from App.abstract.process_managment.BaseMultiProcess import BaseMultiProcess
-from abc import ABC, abstractmethod
 class BaseProcesses(ABC):
     """
     ### Explanation:
@@ -14,12 +14,14 @@ class BaseProcesses(ABC):
         if not self.app: raise Exception(f"No Application has been detected in {__file__}")
         self.processes : list[BaseMultiProcess] = []
         self.initilize() 
+        setattr(self.app, self.processname, self)
+        debugMsg("{} Data: {}", self.processname,str([ f"name: {s.name}, isParallel: {s.isParallel}" for s in self.get_all()]).replace("['","\n ").replace("']","").replace("',","\n").replace("'",""))
 
     @property
     @abstractmethod
     def processname(self) -> str:
         """
-        this property set the name of the intended process
+        this property set the name of the intended process, keep in mind the process manager class should have this name 'manager for single process'
         """
         pass
 
@@ -35,7 +37,7 @@ class BaseProcesses(ABC):
     @abstractmethod
     def processesManagerPath(self) -> str:
         """
-        this property set the path of process manager class which extends BaseMultiProcess
+        this property set the path of process manager class which extends BaseMultiProcess 'manager single process'
         """
         pass
 
@@ -47,7 +49,10 @@ class BaseProcesses(ABC):
         accept no args.
         ### return:
         None
+        ### Note:
+        FilePath variable should be in format of MainFolder.SubFolder. ...etc .FILE
         """
+        ProcessesToregister = []
         debugMsg(f"Loading {self.processname}s ...")
         ProcessesfilePath = self.processespath
         ProcessManager = getattr(importlib.import_module(self.processesManagerPath.replace("/", ".")), self.processname)
@@ -60,10 +65,10 @@ class BaseProcesses(ABC):
             m = importlib.import_module(filePath)
             cls = getattr(m, n)
             if issubclass(cls, BaseProcess):
-                self.add_process(ProcessManager(idCounter, n, cls, filePath, True, self.app))
+                self.add_process(ProcessManager(idCounter, n, cls, filePath, True, self.processname))
                 debugMsg(f"loaded {self.processname}"" : {}", filePath)
     
-    def run_processes(self, event) -> None:
+    def run(self, event) -> None:
         """
         ### Explanation:
         This is the entry point for every event launched by events class which run specific event for specific process listeners
@@ -72,7 +77,7 @@ class BaseProcesses(ABC):
         ### return:
         None
         """
-        processes = self.get_processes()
+        processes = self.get_all()
         for s in processes:
             s.run(event)
 
@@ -85,7 +90,7 @@ class BaseProcesses(ABC):
         """
         self.processes.append(processObj)
     
-    def get_processes(self) -> list[BaseMultiProcess]:
+    def get_all(self) -> list[BaseMultiProcess]:
         """
         ### Explanation:
         this method return all of the process managing classes
@@ -96,7 +101,7 @@ class BaseProcesses(ABC):
         """
         return self.processes
     
-    def get_process(self, name:str) -> BaseMultiProcess|None:
+    def get(self, name:str) -> BaseMultiProcess|None:
         """
         ### Explanation:
         this method return the process managing class according to the provided name.
@@ -112,3 +117,26 @@ class BaseProcesses(ABC):
                 S = s
 
         return S
+
+    @classmethod
+    def inheritors_names(klass) -> list:
+        subclasses = []
+        work = [klass]
+        while work:
+            parent = work.pop()
+            for child in parent.__subclasses__():
+                if child not in subclasses:
+                    subclasses.append(child)
+                    work.append(child)
+        return subclasses
+    
+    @classmethod
+    def inheritors(klass) -> list:
+        inherits = []
+        app = getApplication(True)
+        if app == None: raise Exception("No app is found")
+        PROCESSES : list[BaseProcesses] = klass.inheritors_names()
+        for P in PROCESSES:
+            inherits.append(getattr(app, P.processname))
+
+        return inherits

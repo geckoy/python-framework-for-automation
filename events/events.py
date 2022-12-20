@@ -2,6 +2,8 @@ from App.Helpers import *
 from events.BaseListener import BaseListener
 from events.event import event
 from typing import Callable
+from App.abstract.process_managment.BaseProcesses import BaseProcesses
+
 class events:
     """
     ### Explanation:
@@ -14,6 +16,7 @@ class events:
         if not self.app: raise Exception(f"No Application has been detected in {__file__}")
         self.events = []
         self.initilize()
+        self.app.events = self
         self.app.exec_event : Callable[[str], None] = self.run
 
     def initilize(self) -> None:
@@ -77,3 +80,21 @@ class events:
                 event = e
                 break
         return event
+    
+    def get_events(self)-> list[event]:
+        return self.events
+    
+    def accept_all_events(self, event:str):
+        self.run_abstract_process_management_kids_events(event)
+
+    def run_abstract_process_management_kids_events(self, event:str):
+        process_management : list[BaseProcesses] = BaseProcesses.inheritors()
+        for P in process_management:
+            P.run(event)
+            if event == "app_closed":
+                subPs = P.get_all()
+                for subP in subPs:
+                    try:
+                        subP.app_close()
+                    except:
+                        pass

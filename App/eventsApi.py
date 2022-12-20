@@ -1,6 +1,5 @@
 from App.Helpers import *
-from services.general.services import services
-from events.events import events as ev
+
 class events:
     def __init__(self, appli) -> None:
         from app import application
@@ -14,23 +13,8 @@ class events:
         None
         """
         debugMsg("Application created event launched")
-        ev()     
-        services()   
+        self.application.exec_event("app_created")
         debugMsg("Application created event ended")
-        
-
-    def app_starting(self) -> None:
-        """
-        ### Explanation:
-        this event is launched before starting the loop method. "here where application services and processes start to register only push to app don't fetch or exec commands"
-        ### return:
-        None
-        """
-        debugMsg("Application starting event launched")
-        print("Application Starting ...")
-        self.application.exec_event("app_starting")
-        debugMsg("Application starting event ended")
-
 
     def app_loop_before(self) -> None:
         """

@@ -10,9 +10,22 @@ class BaseProcess(ABC):
     ### return:
     None
     """
-    def __init__(self, appli) -> None:
-        from app import application
-        self.app : application = appli
+    def __init__(self) -> None:
+        self.initilize()
+        
+    @property
+    def events(self)-> list[str]:
+        """
+        which events the process is listening to, this typehint is added forcebly so don't try to check it with hasattr().
+        """
+        pass
+
+    @abstractmethod
+    def initilize(self) -> None:
+        """
+        This method is executed when class is created don't try to fetch data from other processes that inherit process_management abstract concept.
+        """
+        pass
 
     @abstractmethod
     def run(self, event:str) -> None:
@@ -27,7 +40,7 @@ class BaseProcess(ABC):
         pass
     
     @abstractmethod
-    def __del__(self):
+    def app_close(self):
         """
         ### Explanation:
         abstarct magic method executed when removing object from mem

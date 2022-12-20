@@ -1,5 +1,12 @@
 from typing import TypedDict, Literal, Any
 
+class apptypehints:
+    """
+    This class meant to set the typehints of app attributes that are added after app __init__
+    """
+    def __init__(self) -> None:
+        from services.general.servicesManager import servicesManager
+        self.service : servicesManager
 
 class client_command_mesg_Body(TypedDict):
     type : Literal["normal", "ez"]

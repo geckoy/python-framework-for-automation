@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 class BaseListener(ABC):
-    def __init__(self, application) -> None:
-        self.app = application
+    def __init__(self, appli) -> None:
+        from app import application
+        self.app : application = appli
     
     @abstractmethod
     def run(self):

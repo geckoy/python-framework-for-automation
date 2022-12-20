@@ -1,19 +1,19 @@
 from App.Helpers import *
 from App.eventsApi import events
-from services.general.services import services
 from events.events import events as ev
 from commands.commands import commands
-class application:
+from App.typehints import apptypehints
+class application(apptypehints):
     def __init__(self, debug:bool = False) -> None:
+        super().__init__()
         # Register App in mem
         add2memory(application=self)
-        # Set app debug mode & operating sys
+        # Set app important classes and properties
         self.DEBUG = debug;debugMsg("debug mode is Activated");self.OS = get_os_distro()
         self.loopTimeout = 0.1
         self.eventsApi = events(self)
-        self.events : ev
-        self.services : services
-        self.commands : commands
+        self.commands : commands = commands()
+        self.events : ev = ev()
         # launch creating event
         self.eventsApi.app_created()
 
@@ -26,7 +26,6 @@ class application:
         app = getApplication(False)\n
         app.initiate()
         """
-        self.eventsApi.app_starting()
         print("Application Started ...")
         self.loop()
 
@@ -38,7 +37,7 @@ class application:
                 self.eventsApi.app_loop_before()
                 self.eventsApi.app_loop_process()
                 self.eventsApi.app_loop_after()
-
+                self.commands.check_new_request()
             except KeyboardInterrupt:
                 break
 

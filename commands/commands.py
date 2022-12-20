@@ -44,15 +44,18 @@ class commands:
 
     @classmethod
     def send_http_req(self, data ) -> bool|None:
-        conn = HTTPConnection(f"127.0.0.1:6969")
-        headers = {'Content-type': 'application/json'}
-        json_data = json.dumps(data)
-        conn.request('POST', '/', json_data, headers)
-        response = conn.getresponse()
-        conn.close()
-        res : dict = json.loads(response.read().decode())
-        return res.get("message")
-    
+        try:
+            conn = HTTPConnection(f"127.0.0.1:6969")
+            headers = {'Content-type': 'application/json'}
+            json_data = json.dumps(data)
+            conn.request('POST', '/', json_data, headers)
+            response = conn.getresponse()
+            conn.close()
+            res : dict = json.loads(response.read().decode())
+            return res.get("message")
+        except:
+            return None
+            
     def process_return_msg(self, message):
         tp = type(message)
         if tp is dict:
@@ -91,6 +94,9 @@ class commands:
             elif type == "ez":
                 pass
                 # res = self.ez_command()
+        except KeyboardInterrupt as err:
+            raise err
+
         except:
             res = None
             applogE("Client command catched error : ", traceback.format_exc())

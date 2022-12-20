@@ -1,6 +1,8 @@
-from multiprocessing import Process
+from App.Helpers import *
 from abc import ABC
-class BaseMultiProcess(ABC):
+from App.abstract.process_managment.BaseProcess import BaseProcess
+from App.abstract.parallel.BaseParallel import BaseParallel
+class BaseMultiProcess(ABC, BaseParallel):
     """
     ### Explanation:
     This class is Process managing class which stop pause start the processes 'service also can use this class'
@@ -8,21 +10,23 @@ class BaseMultiProcess(ABC):
     @id: int, process identification, required.
     @name:string, name of the process, required.
     @cls:class, the real process class, required.
-    @path: string, path of the real process class, required.
+    @path: string, path of the real process class in form of MainFolder.SubFolder.FileName, required.
     @autoStart:bool, if auto launch at starting, required.
+    @categoryName: string, name of this category for example service, required. 
     @args: list, argument that will be passed to the real process class at instantiation, default: empty list.
     ### return:
     None
     """
-    def __init__(self, id:int, name:str, cls, path:str, autoStart:bool, *args) -> None:
+    def __init__(self, id:int, name:str, cls, path:str, autoStart:bool, categoryName:str, *args) -> None:
         self.id = id
         self.name = name
         self.process_class = cls
         self.process_path = path
+        self.categoryName = categoryName
         self.autoStart = autoStart
+        self.logger = getLogging(f"{self.name}_{self.id}", f"temp/logs/processes/{self.categoryName}/{self.name}.log")
         self.process_args = args
-        self.process_obj = None
-        self.isPreviouslyStop = False
+        self.process_obj :BaseProcess|None = None
         self.isParallel = True if hasattr(cls, "parallel") else False
         self.initilize()
 
@@ -39,7 +43,7 @@ class BaseMultiProcess(ABC):
         if self.autoStart:
             self.start()
 
-    def run(self, event) -> None:
+    def run(self, event:str) -> None:
         """
         ### Explanation:
         this method meant to execute the process in interval way.
@@ -48,10 +52,15 @@ class BaseMultiProcess(ABC):
         ### return:
         None
         """
-        if self.process_obj != None and not self.isParallel and hasattr(self.process_obj, "events"):
-            if event in self.process_obj.events:
-                if not self.isPaused(): self.process_obj.run(event)
+        if  not self.isParallel:
+            if self.process_obj != None and hasattr(self.process_obj, "events"):
+                if event in self.process_obj.events:
+                    self.__run(event)
     
+    def __run(self, event:str = ""):
+        if not self.isPaused(): 
+            self.process_obj.run(event)
+
     def start(self) -> bool:
         """
         ### Explanation:
@@ -62,12 +71,12 @@ class BaseMultiProcess(ABC):
         bool, True if started else False
         """
         started = False
-        if self.process_obj == None and not self.isPreviouslyStop: 
+        if self.isParallel:
+            started = self.start_parallel(self.process_class, "run")
+        elif self.process_obj == None: 
             started = True
-            if self.isParallel:
-                pass
-            else:
-                self.process_obj = self.process_class(*self.process_args)
+            self.process_obj = self.process_class(*self.process_args)
+
         return started
 
     def stop(self):
@@ -79,35 +88,31 @@ class BaseMultiProcess(ABC):
         ### return:
         None
         """
-        if not self.process_obj == None:
-            self.isPreviouslyStop = True
-            if self.isParallel:
-                pass
-            else:
-                del self.process_obj
-                self.process_obj = None
+        if self.isParallel:
+            self.stop_parallel()
+
+        elif not self.process_obj == None:
+            self.process_obj.app_close()
+            del self.process_obj
+            self.process_obj = None
     
     def isPaused(self):
         if self.isParallel:
-            pass
+            self.isPause_parallel()
         else:
             return self.paused
 
     def pause(self):
         if self.isParallel:
-            pass
+            self.pause_parallel()
         else:
             self.paused = True
     
     def unPause(self):
         if self.isParallel:
-            pass
+            self.play_parallel()
         else:
             self.paused = False
     
-    def parallel(self):
-        pass
-    
-    def __del__(self):
-        if self.process_obj != None: 
-            self.stop()
+    def app_close(self):
+        self.stop()

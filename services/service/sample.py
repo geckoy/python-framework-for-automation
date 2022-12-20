@@ -3,8 +3,13 @@ class sample(BaseService):
     events = [
         
     ]
+    
+    def initilize(self) -> None:
+        pass
+
+
     def run(self, event:str):
         pass
     
-    def __del__(self):
+    def app_close(self):
         pass
