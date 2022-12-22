@@ -12,6 +12,9 @@ class BaseProcessCommands(ABC):
 
     def execAbstract(self, action:str, metaData:dict) -> exec_command_returned_dict:
         self.process :BaseProcesses = getattr(self.app, self.processname)
+
+        ##For specific process
+        if metaData.get(f"{self.processname}_name","undefined") == "undefined": raise Exception(f"{self.processname} Name undefiend")
         if action == f"start_{self.processname}":
             p = self.get_specific_procs(metaData)
             r = p.start()
@@ -28,9 +31,16 @@ class BaseProcessCommands(ABC):
             p = self.get_specific_procs(metaData)
             p.stop()
             self.returnCMres(True, True)
-    
+
+        elif action == f"get_status_{self.processname}":
+            p = self.get_specific_procs(metaData)
+            response = p.status()
+            if response != None:
+                self.returnCMres(True, response)
+            else:
+                self.returnCMres(False, f"""{self.processname}_{metaData[f"{self.processname}_name"]}_closed""")
+
     def get_specific_procs(self, metaData:dict) -> BaseMultiProcess:
-        if metaData.get(f"{self.processname}_name","undefined") == "undefined": raise Exception(f"{self.processname} Name undefiend")
         p = self.process.get(metaData[f"{self.processname}_name"])
         if p == None: raise Exception(f"{self.processname} name is not registered in our {self.processname} manager")
         return p

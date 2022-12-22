@@ -1,4 +1,4 @@
-from multiprocessing import Process, Event
+from multiprocessing import Process, Event, Manager
 from time import sleep
 from App.Helpers import *
 class BaseParallel:
@@ -17,6 +17,7 @@ class BaseParallel:
         ### return:
         None
         """
+        self.parallel_shared_state = Manager().dict()
         self.parallel_process:Process|None = None
         self.parallel_cls = cls
         self.parallel_clsattr = clsattr
@@ -43,7 +44,7 @@ class BaseParallel:
         if self.parallel_process == None:    
             started = True
             self.set_parallel(cls, clsattr, args, logger, categoryName, name)
-            self.parallel_process = Process(target=self.parallel, args=(self.parallel_cls, self.parallel_clsattr, self.parallel_pauseEv, self.parallel_stopEv, self.parallel_logger, self.parallel_cat_name, self.name,*self.parallel_cls_args))    
+            self.parallel_process = Process(target=self.parallel, args=(self.parallel_cls, self.parallel_clsattr, self.parallel_pauseEv, self.parallel_stopEv, self.parallel_logger, self.parallel_cat_name, self.name, self.parallel_shared_state, *self.parallel_cls_args))    
             self.parallel_process.start()
         return started
 
@@ -97,8 +98,7 @@ class BaseParallel:
         """
         if hasattr(self, "parallel_pauseEv"):
             return self.parallel_pauseEv.is_set()
-
-    def parallel(self, cls, clsattr:str, pauseEv, stopEv, logger, cat_name, name, *args) -> None:
+    def parallel(self, cls, clsattr:str, pauseEv, stopEv, logger, cat_name, name, Shared_state:dict , *args) -> None:
         """
         ### Explanation:
         This method is the running method in parallel, inside it will  instantiate the class and get the inteded attribute that will be running in interval way.
@@ -111,7 +111,7 @@ class BaseParallel:
         ### return:
         None
         """
-        obj = cls(logger, cat_name, name, *args)
+        obj = cls(logger, cat_name, name, *args, Parallel_args = Shared_state)
         attr = getattr(obj, clsattr)
         while True:
             try:
@@ -123,3 +123,11 @@ class BaseParallel:
                     sleep(0.01)
             except BaseException as err: 
                 logE(getLogging(logger["name"], logger["path"]),f"Process of {cat_name} '{name}' catched an error", traceback.format_exc(), err)
+        
+    def parallel_status(self) -> str|None:
+        res = None
+        if self.parallel_process != None:
+            if "status" in self.parallel_shared_state:
+                res = self.parallel_shared_state.get("status")
+        return res
+        

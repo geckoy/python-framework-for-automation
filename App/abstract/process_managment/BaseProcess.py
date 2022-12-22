@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from App.Helpers import *
-
+import datetime
 class BaseProcess(ABC):
     """
     ### Explanation:
@@ -10,10 +10,12 @@ class BaseProcess(ABC):
     ### return:
     None
     """
-    def __init__(self, logger:dict, cat_name:str, name:str, *args) -> None:
+    def __init__(self, logger:dict, cat_name:str, name:str, *args, Parallel_args:dict = None) -> None:
         self.logger = logger
         self.categoryName = cat_name
         self.name = name
+        self.__parallel_args = Parallel_args
+        self.status = ""
         self.initilize(*args)
         
     @property
@@ -64,5 +66,18 @@ class BaseProcess(ABC):
     def log_success(self, Title:str, *args, Epath:str = None):
         logS(getLogging(self.logger["name"], self.logger["path"]), Title, *args, Epath = Epath )
 
-    def exec_command(self):
-        pass
+    def exec_command(self, cmName:str, action:str, metaData:dict = {}, type:str = "normal" ) -> Any|None:
+        if hasattr(self, "parallel"):
+            return exec_command(cmName, action, metaData, type)
+        else:
+            app = getApplication(True)
+            if app == None: return None
+            app.commands.exec_command(cmName, action, metaData)
+    
+    def set_status(self, stats:str):
+        if isinstance(stats, str):
+            stats = stats + "|" + str(datetime.datetime.now())
+            if hasattr(self, "parallel"):
+                self.__parallel_args["status"] = stats
+            else:
+                self.status = stats

@@ -42,8 +42,9 @@ class BaseMultiProcess(ABC, BaseParallel):
         None
         """
         self.paused = self.unPause()
-        if self.autoStart:
-            self.start()
+        if not self.isParallel:
+            if self.autoStart:
+                self.start()
 
     def run(self, event:str) -> None:
         """
@@ -61,7 +62,12 @@ class BaseMultiProcess(ABC, BaseParallel):
             elif self.process_obj != None and hasattr(self.process_obj, "events"):
                 if event in self.process_obj.events:
                     self.__run(event)
-
+        else:
+            if not hasattr(self, "called_parallel"):
+                setattr(self, "called_parallel", True)
+                if self.autoStart:
+                    self.start()
+                
     def __run(self, event:str = None):
         if not self.isPaused(): 
             try:
@@ -69,6 +75,8 @@ class BaseMultiProcess(ABC, BaseParallel):
                     self.process_obj.run(event)
                 else:
                     self.process_obj.run()
+            except KeyboardInterrupt as err:
+                raise err
             except BaseException as err:
                 logE(getLogging(self.loggingName, self.loggerPath),f"Process of {self.categoryName} '{self.name}' catched an error", traceback.format_exc(), err)
 
@@ -159,3 +167,17 @@ class BaseMultiProcess(ABC, BaseParallel):
         None
         """
         self.stop()
+    
+    def status(self) -> None|str:
+        """
+        None, when process is closed
+        str, response from process
+        """
+        res = None
+        if self.isParallel:
+            res = self.parallel_status()
+        else:
+            if self.process_obj != None:
+                res = self.process_obj.status
+        
+        return res

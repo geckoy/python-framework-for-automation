@@ -10,7 +10,7 @@ class application(apptypehints):
         add2memory(application=self)
         # Set app important classes and properties
         self.DEBUG = debug;debugMsg("debug mode is Activated");self.OS = get_os_distro()
-        self.loopTimeout = 0.1
+        self.loopTimeout = 0.01
         self.eventsApi = events(self)
         self.commands : commands = commands()
         self.events : ev = ev()
@@ -51,20 +51,3 @@ class application(apptypehints):
 
     def __del__(self) -> None:
         pass
-
-
-
-#? State The Problem & identify inputs and outputs:
-#?==================================================
-#  we need a application management class, inputs: user-args | outputs: datatypes
-# 
-#! Try to cover all eadge cases:
-#!===============================
-#  4. giving stats
-#
-# * Done:
-#=========
-# 1. the starting mode of app "debug" OR "production"
-# 2. starting the app using cli or pm2 or debian service
-# 3. define the operating system when stating
-# 4. logging exceptions

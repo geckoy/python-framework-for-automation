@@ -12,7 +12,9 @@ class counterparallel(BasePsample):
         counter = self.mycounter 
         print("Counter is {}".format(counter))
         self.mycounter  +=1
-        sleep(0.5)
+        # if self.mycounter == 20:
+        #     self.exec_command("manage_app", "stop_app")
+        # sleep(0.5)
 
     def app_close(self):
         pass

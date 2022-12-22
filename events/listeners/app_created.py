@@ -10,5 +10,5 @@ class app_created(BaseListener):
     def run(self):
         servicesManager() 
         if isDebug():
-            # psampleManager()
             vpsampleManager()
+            psampleManager()

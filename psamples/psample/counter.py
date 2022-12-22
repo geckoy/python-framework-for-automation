@@ -24,7 +24,7 @@ class counter(BasePsample):
                 # c = self.commands.exec_command("manage_app","check_app")
                 # print(f"App check is {c}")
                 print("raising Exception")
-                print(getApplication(True).commands.exec_command("manage_app","stop_app"))
+                self.exec_command("manage_app","stop_app")
 
     def app_close(self):
         pass
