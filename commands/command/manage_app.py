@@ -8,7 +8,9 @@ class manage_app(BaseCommand):
            self.stop_app()
         elif action == "check_app":
            self.check_app()
-
+        elif action == "test":
+            sleep(15)
+            self.returnCMres(True, "slept well jhon")
     def check_app(self):
         self.returnCMres(True, True)
 

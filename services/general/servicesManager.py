@@ -1,5 +1,4 @@
 from App.Helpers import *
-from services.general.service import service
 from App.abstract.process_managment.BaseProcesses import BaseProcesses
 class servicesManager(BaseProcesses):
     """

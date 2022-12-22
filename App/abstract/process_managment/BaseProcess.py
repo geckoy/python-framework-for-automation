@@ -1,29 +1,37 @@
 from abc import ABC, abstractmethod
-
+from App.Helpers import *
 
 class BaseProcess(ABC):
     """
     ### Explanation:
-    This abstract class is used with each process want to integrate it in app BaseMultiProcessing
+    This abstract class is used with each process want to integrate it in BaseMultiProcessing
     ### Args:
-    @appli: object application, the main application, required.
+    @args: list, arguments that will be needed by the process, required.
     ### return:
     None
     """
-    def __init__(self) -> None:
-        self.initilize()
+    def __init__(self, logger:dict, cat_name:str, name:str, *args) -> None:
+        self.logger = logger
+        self.categoryName = cat_name
+        self.name = name
+        self.initilize(*args)
         
     @property
     def events(self)-> list[str]:
         """
         which events the process is listening to, this typehint is added forcebly so don't try to check it with hasattr().
         """
-        pass
+        return []
 
     @abstractmethod
-    def initilize(self) -> None:
+    def initilize(self, *args) -> None:
         """
+        ### Explanation:
         This method is executed when class is created don't try to fetch data from other processes that inherit process_management abstract concept.
+        ### Args:
+        @args: list, argument needed by the process, required.
+        ### return:
+        None
         """
         pass
 
@@ -31,11 +39,13 @@ class BaseProcess(ABC):
     def run(self, event:str) -> None:
         """
         ### Explanation:
-        this method meant to execute the service in interval way.
+        this method meant to execute the process in interval way.
         ### Args:
         @event: string [ any event inside the listeners of events/listeners], this sepcify which event been executed and called the service, required.
         ### return:
         None
+        ### Note:
+        the @event arg it will be ommitted when running in parallel so be sure to remove it when running the process in parallel. 
         """
         pass
     
@@ -43,23 +53,16 @@ class BaseProcess(ABC):
     def app_close(self):
         """
         ### Explanation:
-        abstarct magic method executed when removing object from mem
+        abstarct magic method executed when removing the class object from mem.
+        ### Args:
+        accept no args.
+        ### return:
+        None
         """
         pass
+    
+    def log_success(self, Title:str, *args, Epath:str = None):
+        logS(getLogging(self.logger["name"], self.logger["path"]), Title, *args, Epath = Epath )
 
-#* State the Problems clearly:
-#===============================
-#  we need a base service application and it will connect each service to some specific app event in eventsApi. 
-# #
-#* try to cover All eadge cases:
-#=================================
-#  4. can access db
-#  6. each service has the ability to work in parallel or sync
-#
-#* Done:
-#=======
-#  1. each service is added to service folder and the services.py will read all the services inside directory auto and also instantiate them  
-#  2. each has the ability to listen for some event of app.
-#  3. can access the app.
-#  5. having a class that connect them all using services.py
-# #
+    def exec_command(self):
+        pass

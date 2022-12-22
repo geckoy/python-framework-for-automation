@@ -1,11 +1,11 @@
-from services.general.BaseService import BaseService
+from psamples.general.BasePsample import BasePsample
 from App.Helpers import *
-class counter(BaseService):
+
+class counterparallel(BasePsample):
     events = [
-        "app_loop_before"
     ]
     parallel = True
-    def initilize(self) -> None:
+    def initilize(self, *args) -> None:
         self.mycounter = 0
 
     def run(self):

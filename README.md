@@ -1,7 +1,4 @@
 ### Introduction:
-This python app used as an api with mmcli to handle your modems sms.
-requirements: linux OS, ModemManager, Python>=3.10.6, PM2(optional).
-support: SMS Bulk Messaging, reading from modems, monitoring them, ...etc.
-This app still in creation.
-
-More readme coming soon :).
+This Python low level framework, that helps you do your automation easily, website scraping, managing file, managing linux devices, running background services, ...etc. 
+OS requirements: linux based systems.
+it provide running processes in parallel or synchrounous, based file or data processes execution.

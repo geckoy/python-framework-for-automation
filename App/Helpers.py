@@ -284,3 +284,22 @@ def _logEvent(logger:object, Title:str, *args, Epath, event):
         additionals = "\n{}" * argCount
     msg = f"{identification}\n" + Title + additionals + "\nFILE PATH: {}"+ f"\n{identification}"
     log(logger, msg, *args, Epath, event=event)
+
+def exec_command(cmName:str, action:str, metaData:dict = {}, type:str = "normal"):
+    """
+    ### Explanation:
+    This function execute command using socket connection to the app command listener.
+    ### Args:
+    @cmName: string, command file name to execute, required.
+    @action: string, action to execute of specific command file, required.
+    @metaData: dict, additional data to be passed, default: empty dict.
+    @type: string, normal or ez command, default:normal.
+    ### return:
+    bool, False for type not found.
+    None, for exception occured or undefiend command.
+    dict, for command response.
+    ### Note:
+    The dict response can also have states, it responses from execution @status : True if all running good else False if command execution didn't occured as intended or None for exceptions or undefined action, @response for passed returned data it can be empty, e.g. { "status":True|False|None, "response":any }.  
+    """
+    from commands.commands import commands
+    print(commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData }))

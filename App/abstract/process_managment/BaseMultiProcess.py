@@ -5,26 +5,28 @@ from App.abstract.parallel.BaseParallel import BaseParallel
 class BaseMultiProcess(ABC, BaseParallel):
     """
     ### Explanation:
-    This class is Process managing class which stop pause start the processes 'service also can use this class'
+    This class is Process managing class which stop pause start the process of the BaseProcesses
     ### Args:
     @id: int, process identification, required.
     @name:string, name of the process, required.
     @cls:class, the real process class, required.
     @path: string, path of the real process class in form of MainFolder.SubFolder.FileName, required.
     @autoStart:bool, if auto launch at starting, required.
-    @categoryName: string, name of this category for example service, required. 
+    @categoryName: string, name of this category of process for example service, required. 
     @args: list, argument that will be passed to the real process class at instantiation, default: empty list.
     ### return:
     None
     """
-    def __init__(self, id:int, name:str, cls, path:str, autoStart:bool, categoryName:str, *args) -> None:
+    def __init__(self, *, id:int, name:str, cls:BaseProcess, path:str, autoStart:bool, categoryName:str, args:list = []) -> None:
         self.id = id
         self.name = name
         self.process_class = cls
         self.process_path = path
         self.categoryName = categoryName
         self.autoStart = autoStart
-        self.logger = getLogging(f"{self.name}_{self.id}", f"temp/logs/processes/{self.categoryName}/{self.name}.log")
+        self.loggingName = f"{self.name}_{self.id}" if hasattr(cls, "virtual") else f"{self.name}"
+        self.loggerPath = f"temp/logs/processes/{self.categoryName}/{self.loggingName}.log"
+        self.logger = {"name":self.loggingName, "path":self.loggerPath}
         self.process_args = args
         self.process_obj :BaseProcess|None = None
         self.isParallel = True if hasattr(cls, "parallel") else False
@@ -46,25 +48,34 @@ class BaseMultiProcess(ABC, BaseParallel):
     def run(self, event:str) -> None:
         """
         ### Explanation:
-        this method meant to execute the process in interval way.
+        this method meant to execute the process in interval way, works only for sync mode.
         ### Args:
         @event: string [ any event inside the listeners of events/listeners], this sepcify which event been executed and called the process, required.
         ### return:
         None
         """
         if  not self.isParallel:
-            if self.process_obj != None and hasattr(self.process_obj, "events"):
+            if hasattr(self.process_obj, "virtual") and event == "app_loop_process":
+                self.__run()
+                
+            elif self.process_obj != None and hasattr(self.process_obj, "events"):
                 if event in self.process_obj.events:
                     self.__run(event)
-    
-    def __run(self, event:str = ""):
+
+    def __run(self, event:str = None):
         if not self.isPaused(): 
-            self.process_obj.run(event)
+            try:
+                if event != None : 
+                    self.process_obj.run(event)
+                else:
+                    self.process_obj.run()
+            except BaseException as err:
+                logE(getLogging(self.loggingName, self.loggerPath),f"Process of {self.categoryName} '{self.name}' catched an error", traceback.format_exc(), err)
 
     def start(self) -> bool:
         """
         ### Explanation:
-        init the process
+        start the process, real class will be instantiated.
         ### Args:
         accept no args.
         ### return:
@@ -72,10 +83,10 @@ class BaseMultiProcess(ABC, BaseParallel):
         """
         started = False
         if self.isParallel:
-            started = self.start_parallel(self.process_class, "run")
+            started = self.start_parallel(self.process_class, "run", self.process_args, {"name":self.loggingName, "path":self.loggerPath}, self.categoryName, self.name)
         elif self.process_obj == None: 
             started = True
-            self.process_obj = self.process_class(*self.process_args)
+            self.process_obj = self.process_class(self.logger, self.categoryName, self.name, *self.process_args)
 
         return started
 
@@ -96,23 +107,55 @@ class BaseMultiProcess(ABC, BaseParallel):
             del self.process_obj
             self.process_obj = None
     
-    def isPaused(self):
+    def isPaused(self) -> bool:
+        """
+        ### Explanation:
+        return whether the process is paused or running
+        ### Args:
+        accept no args
+        ### return:
+        bool, True for paused else False
+        """
         if self.isParallel:
-            self.isPause_parallel()
+            return self.isPause_parallel()
         else:
             return self.paused
 
-    def pause(self):
+    def pause(self) -> None:
+        """
+        ### Explanation:
+        this method pause the running process.
+        ### Args:
+        accept no args.
+        ### return:
+        None
+        """
         if self.isParallel:
             self.pause_parallel()
         else:
             self.paused = True
     
-    def unPause(self):
+    def unPause(self) -> None:
+        """
+        ### Explanation:
+        this method play the paused process.
+        ### Args:
+        accept no args.
+        ### return:
+        None
+        """
         if self.isParallel:
             self.play_parallel()
         else:
             self.paused = False
     
     def app_close(self):
+        """
+        ### Explanation:
+        this method called by events.py when app is closing, which inside it will call the stop method to stop the running process.
+        ### Args:
+        accept no args.
+        ### return:
+        None
+        """
         self.stop()

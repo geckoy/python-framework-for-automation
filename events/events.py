@@ -90,7 +90,7 @@ class events:
     def run_abstract_process_management_kids_events(self, event:str):
         process_management : list[BaseProcesses] = BaseProcesses.inheritors()
         for P in process_management:
-            P.run(event)
+            
             if event == "app_closed":
                 subPs = P.get_all()
                 for subP in subPs:
@@ -98,3 +98,5 @@ class events:
                         subP.app_close()
                     except:
                         pass
+            else:
+                P.run(event)

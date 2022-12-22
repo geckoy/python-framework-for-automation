@@ -44,18 +44,26 @@ class commands:
 
     @classmethod
     def send_http_req(self, data ) -> bool|None:
-        try:
-            conn = HTTPConnection(f"127.0.0.1:6969")
-            headers = {'Content-type': 'application/json'}
-            json_data = json.dumps(data)
-            conn.request('POST', '/', json_data, headers)
-            response = conn.getresponse()
-            conn.close()
-            res : dict = json.loads(response.read().decode())
-            return res.get("message")
-        except:
-            return None
-            
+        r = None
+        while True:
+            try:
+                conn = HTTPConnection(f"127.0.0.1:6969")
+                headers = {'Content-type': 'application/json'}
+                json_data = json.dumps(data)
+                conn.request('POST', '/', json_data, headers)
+                response = conn.getresponse()
+                conn.close()
+                res : dict = json.loads(response.read().decode())
+                r = res.get("message")
+                break
+
+            except TimeoutError:
+                continue
+
+            except:
+                break
+        return r
+                
     def process_return_msg(self, message):
         tp = type(message)
         if tp is dict:
