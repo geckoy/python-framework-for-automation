@@ -1,6 +1,6 @@
-from vpsamples.general.BaseVpsample import BaseVpsample
+from psampleProcess.general.BasePsample import BasePsample
 
-class sample(BaseVpsample):
+class sample(BasePsample):
     events = [
         "app_loop_before"
     ]

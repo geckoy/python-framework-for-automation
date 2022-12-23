@@ -1,2 +1,2 @@
-from commands.commands import commands
-commands.send_http_req( { "type":"normal","cmName": "manage_app","action":"stop_app", "metaData":"" } )
+from App.Helpers import exec_command
+exec_command("manage_app","stop_app")

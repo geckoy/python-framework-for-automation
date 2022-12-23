@@ -6,3 +6,5 @@ include
 pyvenv.cfg
 /bin
 test*.*
+mmclimodemProcess
+ProcessesToload.py

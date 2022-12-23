@@ -9,8 +9,8 @@ class psampleManager(BaseProcesses):# Don't forget to add inheritance to make it
     accept no args.
     """
     processname = "psample"
-    processespath = "psamples/psample"
-    processesManagerPath = "psamples/general/psample"
+    processespath = "psampleProcess/psample"
+    processesManagerPath = "psampleProcess/general/psample"
     
     def __init__(self) -> None:
         super().__init__()

@@ -1,6 +1,6 @@
-from App.abstract.process_managment.BaseProcess import BaseProcess
+from vpsampleProcess.general.BaseVpsample import BaseVpsample
 
-class vpsample(BaseProcess):
+class vpsample(BaseVpsample):
     parallel = True
     def initilize(self, id) -> None:
         print(id)
@@ -8,7 +8,7 @@ class vpsample(BaseProcess):
 
 
     def run(self):
-        print("vsample running :", self.counter)
+        print("vpsample running :", self.counter)
         self.counter += 1
                 
     def app_close(self):

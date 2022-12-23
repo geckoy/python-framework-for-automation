@@ -1,4 +1,4 @@
-from psamples.general.BasePsample import BasePsample
+from psampleProcess.general.BasePsample import BasePsample
 from App.Helpers import *
 
 class counter(BasePsample):
@@ -19,7 +19,7 @@ class counter(BasePsample):
         
         elif event == "app_loop_after":
             # debugMsg("tester loop_after")
-            print(self.tester_counter)
+            print("psample counter sync Mode : ", self.tester_counter)
             if self.tester_counter == 20:
                 # c = self.commands.exec_command("manage_app","check_app")
                 # print(f"App check is {c}")

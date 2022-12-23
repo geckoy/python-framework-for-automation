@@ -181,7 +181,9 @@ class BaseProcesses(ABC):
                 "categoryName":self.processname
             })
         else:
-            return __stored
+            st = __stored.copy()
+            __stored.clear()
+            return st
 
     @classmethod
     def inheritors_classes(klass) -> list:
@@ -209,6 +211,9 @@ class BaseProcesses(ABC):
         PROCESSES : list[BaseProcesses] = klass.inheritors_classes()
         for P in PROCESSES:
             try:
+                if not isDebug():
+                    if P.processname == "psample" or P.processname == "vpsample":
+                        continue
                 inherits.append(getattr(app, P.processname))
             except:
                 applogE("BaseProcess inheritors can't find process prop in app of process ", P.processname)

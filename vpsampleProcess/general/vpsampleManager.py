@@ -9,8 +9,8 @@ class vpsampleManager(BaseProcesses):
     accept no args.
     """
     processname = "vpsample"
-    processespath = "vpsamples/vpsample"
-    processesManagerPath = "vpsamples/general/vpsample"
+    processespath = "vpsampleProcess/vpsample"
+    processesManagerPath = "vpsampleProcess/general/vpsample"
     virtual = True
     def __init__(self) -> None:
         super().__init__()

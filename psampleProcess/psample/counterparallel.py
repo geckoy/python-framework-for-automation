@@ -1,4 +1,4 @@
-from psamples.general.BasePsample import BasePsample
+from psampleProcess.general.BasePsample import BasePsample
 from App.Helpers import *
 
 class counterparallel(BasePsample):
@@ -10,7 +10,7 @@ class counterparallel(BasePsample):
 
     def run(self):
         counter = self.mycounter 
-        print("Counter is {}".format(counter))
+        print("psample Counter parallel mode is {}".format(counter))
         self.mycounter  +=1
         # if self.mycounter == 20:
         #     self.exec_command("manage_app", "stop_app")
