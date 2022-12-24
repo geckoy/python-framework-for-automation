@@ -190,6 +190,11 @@ class BaseProcesses(ABC):
         """
         This method return the classes that inherit the BaseProcesses class.
         """
+        for d in listdir():
+            if re.match(".*Process", d, re.IGNORECASE):
+                processname = d.replace("Process", "")
+                path = f"{processname}Process.general.{processname}Manager"
+                importlib.import_module(path)
         subclasses = []
         work = [klass]
         while work:

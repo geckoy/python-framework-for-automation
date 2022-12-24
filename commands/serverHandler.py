@@ -21,17 +21,3 @@ def server_Handler(process:Callable):
             self.wfile.write(bytes(message, "utf8"))
 
     return Handler
-    
-# EXample of the handler
-# def processor(metaData, requestMessage):
-#     print(metaData)
-#     print((requestMessage))
-#     return {
-#         "message":"Assalamualykum"
-#     }
-# server_address = ('', 6969)
-# httpd = HTTPServer(server_address, server_Handler(processor))
-
-# while True:
-    
-#     httpd.serve_forever()

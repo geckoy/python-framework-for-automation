@@ -11,6 +11,7 @@ from inspect import getframeinfo, stack
 from App.typehints import *
 import traceback
 import importlib
+from os import listdir
 # Helpers
 def debugMsg(message:str, *args, Force:bool = False, specificFile:str =None) -> None:
     """
@@ -303,3 +304,7 @@ def exec_command(cmName:str, action:str, metaData:dict = {}, type:str = "normal"
     """
     from commands.commands import commands
     print(commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData }))
+
+def milli(sec = 0):
+    current = time() + sec
+    return round(current * 1000)

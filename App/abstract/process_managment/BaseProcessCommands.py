@@ -29,7 +29,12 @@ class BaseProcessCommands(ABC):
             self.returnCMres(True, True)
         elif action == f"stop_{self.processname}":
             p = self.get_specific_procs(metaData)
-            p.stop()
+            timeout = metaData.get("timeout", False)
+            if timeout:
+                p.stop(timeout)
+            else:
+                p.stop()
+                
             self.returnCMres(True, True)
 
         elif action == f"get_status_{self.processname}":

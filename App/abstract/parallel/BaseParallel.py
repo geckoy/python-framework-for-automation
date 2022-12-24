@@ -24,6 +24,7 @@ class BaseParallel:
         self.parallel_cls_args = args
         self.parallel_pauseEv = Event() 
         self.parallel_stopEv = Event()
+        self.parallel_issuccess_stopEv = Event()
         self.parallel_logger = logger
         self.parallel_cat_name = categoryName
         self.name = name
@@ -48,7 +49,7 @@ class BaseParallel:
             self.parallel_process.start()
         return started
 
-    def stop_parallel(self) -> None:
+    def stop_parallel(self, timeout:float = None) -> None:
         """
         ### Explanation:
         This method stops the running parallel object
@@ -59,7 +60,18 @@ class BaseParallel:
         """
         if self.parallel_process != None:
             self.parallel_stopEv.set()
-            self.parallel_process.join()
+            tryJoin = False if timeout != None else True
+            if timeout != None:
+                reachedTimeout = milli(timeout)
+                while True:
+                    if self.parallel_issuccess_stopEv.is_set():
+                        tryJoin = True
+                        break
+                    elif reachedTimeout <= milli():
+                        self.parallel_process.terminate()
+                        break
+            
+            if tryJoin: self.parallel_process.join()
             del self.parallel_process
             self.parallel_process = None
 
@@ -116,6 +128,8 @@ class BaseParallel:
         while True:
             try:
                 if stopEv.is_set(): 
+                        obj.app_close()
+                        self.parallel_issuccess_stopEv.set()
                         break
 
                 if not pauseEv.is_set():

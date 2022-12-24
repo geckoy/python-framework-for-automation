@@ -7,6 +7,7 @@ from commands.serverHandler import server_Handler
 import re
 from commands.BaseCommand import BaseCommand
 from typing import Any
+from App.abstract.process_managment.BaseProcesses import BaseProcesses
 class commands:
     def __init__(self) -> None:
         self.app = getApplication(True)
@@ -29,12 +30,33 @@ class commands:
         None
         """
         debugMsg("Loading Commands ...")
+        commandsToregister = []
         ListenersfilePath = "commands/command"
         filesNames = [ f.replace(".py", "") for f in os.listdir(ListenersfilePath) if not re.match('__.*__', f)]
         for n in filesNames:
             filePath = (ListenersfilePath.replace("/",".") + (("." + n)))
             m = importlib.import_module(filePath)
             cls = getattr(m, n)
+            commandsToregister.append({
+                "name":n,
+                "filePath":filePath,
+                "cls":cls
+            })
+        
+        for BaseP in BaseProcesses.inheritors_classes():
+            rn = BaseP.processname
+            n = f"{rn}Commands"
+            filePath= f"{rn}Process.general.{n}"
+            m = importlib.import_module(filePath, n)
+            cls= getattr(m,n)
+            commandsToregister.append({
+                "name":n,
+                "filePath":filePath,
+                "cls":cls
+            })
+
+        for c in commandsToregister:
+            cls = c["cls"];n = c["name"];filePath=c["filePath"]
             if issubclass(cls, BaseCommand):
                 self.add_command(cls(n, filePath, self.app))
                 debugMsg("loaded Command : {}", filePath)
@@ -47,7 +69,7 @@ class commands:
         r = None
         while True:
             try:
-                conn = HTTPConnection(f"127.0.0.1:6969")
+                conn = HTTPConnection(f"127.0.0.1:{self.port}")
                 headers = {'Content-type': 'application/json'}
                 json_data = json.dumps(data)
                 conn.request('POST', '/', json_data, headers)

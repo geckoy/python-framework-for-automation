@@ -12,8 +12,8 @@ class application(apptypehints):
         self.DEBUG = debug;debugMsg("debug mode is Activated");self.OS = get_os_distro()
         self.loopTimeout = 0.01
         self.eventsApi = events(self)
-        self.commands : commands = commands()
         self.events : ev = ev()
+        self.commands : commands = commands()
         # launch creating event
         self.eventsApi.app_created()
 

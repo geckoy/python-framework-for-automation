@@ -1,7 +1,7 @@
 from commands.BaseCommand import BaseCommand
 from App.Helpers import *
 from App.abstract.process_managment.BaseProcessCommands import BaseProcessCommands
-class manage_vpsamples(BaseCommand, BaseProcessCommands):
+class vpsampleCommands(BaseCommand, BaseProcessCommands):
 
     processname = "vpsample"
 

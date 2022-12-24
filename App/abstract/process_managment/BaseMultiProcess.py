@@ -98,17 +98,17 @@ class BaseMultiProcess(ABC, BaseParallel):
 
         return started
 
-    def stop(self):
+    def stop(self, timeout:float =None):
         """
         ### Explanation:
         destroy the process memory allocation "destruct the object"
         ### Args:
-        accept no args.
+        @timeout: float, define the timeout for parallel to terminate it instead of waiting till process end, default: None.
         ### return:
         None
         """
         if self.isParallel:
-            self.stop_parallel()
+            self.stop_parallel(timeout)
 
         elif not self.process_obj == None:
             self.process_obj.app_close()
