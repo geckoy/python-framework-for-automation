@@ -166,7 +166,7 @@ class BaseMultiProcess(ABC, BaseParallel):
         ### return:
         None
         """
-        self.stop()
+        self.stop(0.1)
     
     def status(self) -> None|str:
         """

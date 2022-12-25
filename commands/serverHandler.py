@@ -10,7 +10,10 @@ def server_Handler(process:Callable):
     class Handler(BaseHTTPRequestHandler):
         def __init__(self, request: bytes, client_address: tuple[str, int], server: socketserver.BaseServer) -> None:
             super().__init__(request, client_address, server)
-
+        
+        def log_request(code='-', size='-'):
+            return
+        
         def do_POST(self):
             self.send_response(200)
             self.send_header('Content-type','application/json')

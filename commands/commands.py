@@ -69,7 +69,7 @@ class commands:
         r = None
         while True:
             try:
-                conn = HTTPConnection(f"127.0.0.1:{self.port}")
+                conn = HTTPConnection(f"127.0.0.1:6969")
                 headers = {'Content-type': 'application/json'}
                 json_data = json.dumps(data)
                 conn.request('POST', '/', json_data, headers)

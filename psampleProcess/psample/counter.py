@@ -20,7 +20,7 @@ class counter(BasePsample):
         elif event == "app_loop_after":
             # debugMsg("tester loop_after")
             print("psample counter sync Mode : ", self.tester_counter)
-            if self.tester_counter == 20:
+            if self.tester_counter == 10:
                 # c = self.commands.exec_command("manage_app","check_app")
                 # print(f"App check is {c}")
                 print("raising Exception")

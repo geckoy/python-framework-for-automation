@@ -41,7 +41,7 @@ class BaseProcesses(ABC):
         """
         pass
 
-    def initilize(self) -> None:
+    def initilize(self, *, log = True) -> None:
         """
         ### Explanation:
         This method get executed when all needed attribute are registered.
@@ -53,7 +53,7 @@ class BaseProcesses(ABC):
         FilePath variable should be in format of MainFolder.SubFolder. ...etc .FILE
         """
         ProcessesToregister:list[dict] = []
-        debugMsg(f"Loading {self.processname}s ...")
+        if log: debugMsg(f"Loading {self.processname}s ...")
         ProcessesfilePath = self.processespath
         ProcessManager = getattr(importlib.import_module(self.processesManagerPath.replace("/", ".")), self.processname)
         if not issubclass(ProcessManager, BaseMultiProcess): raise ApplicationCatchedError(f"{self.processname} Manager isn't subclass of BaseMultiProcess")
@@ -94,9 +94,9 @@ class BaseProcesses(ABC):
             if issubclass(P["cls"], BaseProcess):
                 self.add_process(ProcessManager(**P))
                 if not hasattr(self, "virtual"): 
-                    debugMsg(f"loaded {self.processname}"" : {}", P["path"])
+                    if log: debugMsg(f"loaded {self.processname}"" : {}", P["path"])
                 else:
-                    debugMsg("loaded {} : {}", self.processname, P["name"])
+                    if log: debugMsg("loaded {} : {}", self.processname, P["name"])
 
     def run(self, event) -> None:
         """

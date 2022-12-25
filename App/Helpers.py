@@ -3,6 +3,8 @@ from App.UserExceptions import *
 import sys
 from loguru import logger
 import re
+import json
+import subprocess
 import os
 from time import * 
 from peewee import SqliteDatabase
@@ -13,14 +15,14 @@ import traceback
 import importlib
 from os import listdir
 # Helpers
-def debugMsg(message:str, *args, Force:bool = False, specificFile:str =None) -> None:
+def debugMsg(message:str, *args, Force:bool = False, specificFile:dict =None) -> None:
     """
     ### Explanation:
     This function used to print your message into console if the app is running in debug mode.
     ### Args:
     @message: can be String, is used to hold the message you want to log, required.  
     @Force: can be bool, used to force debug, default: False.
-    @specificFile: can be String {"name":"name to register in memory", "path":"temp/logs/FileName.log", "rotation":"1 MB"}, used to set specific file to write the debug message helpful with parallel, default: None.
+    @specificFile: can be dict {"name":"name to register in memory", "path":"temp/logs/FileName.log", "rotation":"1 MB"}, used to set specific file to write the debug message helpful with parallel, default: None.
     @args: can be dataType, is a list param that will be formatted inside the @message string, default: empty list.
     ### return: 
     None
@@ -34,7 +36,7 @@ def debugMsg(message:str, *args, Force:bool = False, specificFile:str =None) -> 
             applog(message, *args, event="debug") 
         else:
             l = getLogging(**specificFile)
-            log(l, *args, event="debug")
+            log(l, message, *args, event="debug")
         if specificFile == None:
             applog(message, *args, event="debug", cli=True) 
 
@@ -303,7 +305,7 @@ def exec_command(cmName:str, action:str, metaData:dict = {}, type:str = "normal"
     The dict response can also have states, it responses from execution @status : True if all running good else False if command execution didn't occured as intended or None for exceptions or undefined action, @response for passed returned data it can be empty, e.g. { "status":True|False|None, "response":any }.  
     """
     from commands.commands import commands
-    print(commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData }))
+    return commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData })
 
 def milli(sec = 0):
     current = time() + sec

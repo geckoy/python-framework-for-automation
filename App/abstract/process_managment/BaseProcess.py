@@ -65,6 +65,23 @@ class BaseProcess(ABC):
     
     def log_success(self, Title:str, *args, Epath:str = None):
         logS(getLogging(self.logger["name"], self.logger["path"]), Title, *args, Epath = Epath )
+    
+    def debugMsg(self, message:str, *args, Force:bool = False, specificFile:str =None) -> None:
+        """
+        ### Explanation:
+        This function used to print your message into console if the app is running in debug mode.
+        ### Args:
+        @message: can be String, is used to hold the message you want to log, required.  
+        @Force: can be bool, used to force debug, default: False.
+        @specificFile: can be String {"name":"name to register in memory", "path":"temp/logs/FileName.log", "rotation":"1 MB"}, used to set specific file to write the debug message helpful with parallel, default: None.
+        @args: can be dataType, is a list param that will be formatted inside the @message string, default: empty list.
+        ### return: 
+        None
+        ### Examples: 
+        from App.Helpers import *\n
+        debugMsg("Hello {}!", "World")
+        """
+        debugMsg(message, *args, Force=Force, specificFile={"name":self.logger['name'], "path":self.logger['path']})
 
     def exec_command(self, cmName:str, action:str, metaData:dict = {}, type:str = "normal" ) -> Any|None:
         if hasattr(self, "parallel"):
@@ -81,3 +98,6 @@ class BaseProcess(ABC):
                 self.__parallel_args["status"] = stats
             else:
                 self.status = stats
+    
+    def stop(self):
+        self.exec_command(f"{self.categoryName}Commands", f"stop_{self.categoryName}", {f"{self.categoryName}_name":self.name, "timeout":1})
