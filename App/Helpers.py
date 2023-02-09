@@ -53,12 +53,13 @@ def isDebug():
     else: 
         return False
 
-def getApplication( OnlyMemory :bool = False, *, debug:bool = False):
+def getApplication( OnlyMemory :bool = False, *, debug:bool = False, specific_processes:str = ""):
     """
     ### Explanation:
     Helper function meant instantiate the application class and its saved into the memory, any subsequent invokes will serve from it. 
     ### Args:
     @OnlyMemory: can be [ True | False ], this param specify if you want to only pull the app from mem without instantiating it, default: False.
+    @specific_processes: can be string  name of the Processes seperated with comma, is used to set which specific Processes to Execute unless its empty.
     ### return: 
     object, application from app.py
     None if OnlyMemory is True and no app is retreived
@@ -69,7 +70,7 @@ def getApplication( OnlyMemory :bool = False, *, debug:bool = False):
     if not OnlyMemory:
         if result == default:
             from app import application
-            application(debug)
+            application(debug, specific_processes)
             result : application = memory().get("application", default)
     
     return result
@@ -161,13 +162,14 @@ def get_os_distro() -> str:
     OS = platform.platform()
     return "linux" if re.match("linux", OS, re.IGNORECASE) else "Undefined"
 
-def start_application(supervisor:str = "cli", debug :bool = False) -> None:
+def start_application(supervisor:str = "cli", debug :bool = False, specific_processes:str = "") -> None:
     """
     ### Explanation:
     This function execute the start.py file which launches the application
     ### Args:
     @supervisor: can be string [ "cli" | "pm2" ], is used to define which supervisor will be used, default: cli.
     @debug: can be bool [ True | False ], is used to set launching mode of app, default: False.
+    @specific_processes: can be string name of the Processes seperated with comma, is used to set which specific Processes to Execute unless its empty.
     ### return:
     None
     """
@@ -175,10 +177,10 @@ def start_application(supervisor:str = "cli", debug :bool = False) -> None:
     match supervisor:
         case "cli":
             print("Running App with SuperVisor cli")
-            os.system("python start.py {}".format(isDebug))
+            os.system("python start.py {} {}".format(isDebug, specific_processes))
         case "pm2":
             print("Running App with SuperVisor pm2")
-            return os.system(f"pm2 start start.py --name MMAPI -- {isDebug}")
+            return os.system(f"pm2 start start.py --name PYFFA -- {isDebug} {specific_processes}")
         case _:
             raise undefinedArgs("Please specify a supervisor")
 

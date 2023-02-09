@@ -4,7 +4,7 @@ from events.events import events as ev
 from commands.commands import commands
 from App.typehints import apptypehints
 class application(apptypehints):
-    def __init__(self, debug:bool = False) -> None:
+    def __init__(self, debug:bool = False, specific_processes:str = "") -> None:
         super().__init__()
         # Register App in mem
         add2memory(application=self)
@@ -15,7 +15,7 @@ class application(apptypehints):
         self.events : ev = ev()
         self.commands : commands = commands()
         # launch creating event
-        self.eventsApi.app_created()
+        self.eventsApi.app_created(specific_processes)
 
     def initiate(self) -> None:
         """

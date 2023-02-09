@@ -14,7 +14,7 @@ class events:
     def __init__(self) -> None :
         self.app = getApplication(True)
         if not self.app: raise Exception(f"No Application has been detected in {__file__}")
-        self.events = []
+        self.events:list[event] = []
         self.initilize()
         self.app.events = self
         self.app.exec_event : Callable[[str], None] = self.run
@@ -41,18 +41,18 @@ class events:
                 self.add_event(event(n, cls, filePath, self.app))
                 debugMsg("loaded Event : {}", filePath)
             
-    def run(self, event:str) -> None:
+    def run(self, ev:str, *args) -> None:
         """
         ### Explanation:
         This is the entry point for every event launched
         ### Args:
-        @event: string, name of the launched event, required.
+        @ev: string, name of the launched event, required.
         ### return:
         None
         """
-        event = self.get_event(event)
+        event = self.get_event(ev)
         if event != None: 
-            event.run()
+            event.run(*args)
 
     def add_event(self, event : event) -> None:
         """

@@ -221,5 +221,7 @@ class BaseProcesses(ABC):
                         continue
                 inherits.append(getattr(app, P.processname))
             except:
-                applogE("BaseProcess inheritors can't find process prop in app of process ", P.processname)
+                pass
+                #This statment above it detect which available processes are existing and try to fetch the instance of them that exists in app, i commented its logger because it was logging the error and caused conflict with specific-processes argument.
+                #applogE("BaseProcess inheritors can't find process prop in app of process ", P.processname)
         return inherits

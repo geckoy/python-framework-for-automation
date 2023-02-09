@@ -5,7 +5,7 @@ class BaseListener(ABC):
         self.app : application = appli
     
     @abstractmethod
-    def run(self):
+    def run(self, *args):
         """
         ### Explanation:
         method execute the event when launched in interval way

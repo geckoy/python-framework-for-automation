@@ -16,7 +16,7 @@ class event:
         self.e_name = name
         self.e_path = path
 
-    def run(self):
+    def run(self, *args):
         """
         ### Explanation:
         method execute the event when launched in interval way
@@ -25,4 +25,4 @@ class event:
         ### return:
         None
         """
-        self.e_class.run()
+        self.e_class.run(*args)
