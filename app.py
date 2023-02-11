@@ -4,18 +4,29 @@ from events.events import events as ev
 from commands.commands import commands
 from App.typehints import apptypehints
 class application(apptypehints):
-    def __init__(self, debug:bool = False, specific_processes:str = "") -> None:
+    def __init__(self, debug:bool = False, supervisor:str="", specific_processes:str = "", specific_env:str="") -> None:
         super().__init__()
-        # Register App in mem
+
+        #1 Register Args
+        if supervisor: add2memory(supervisor=supervisor)
+        if specific_env: add2memory(specific_env=specific_env)
+        if specific_processes: add2memory(specific_processes=specific_processes)
+        
+        #2 App info
+        self.AppName = env("APP_NAME")
+
+        #3 Register App in mem
         add2memory(application=self)
-        # Set app important classes and properties
+
+        #4 Set app important classes and properties
         self.DEBUG = debug;debugMsg("debug mode is Activated");self.OS = get_os_distro()
         self.loopTimeout = 0.01
         self.eventsApi = events(self)
         self.events : ev = ev()
         self.commands : commands = commands()
-        # launch creating event
-        self.eventsApi.app_created(specific_processes)
+
+        #5 launch creating event
+        self.eventsApi.app_created()
 
     def initiate(self) -> None:
         """
@@ -50,4 +61,5 @@ class application(apptypehints):
         raise KeyboardInterrupt
 
     def __del__(self) -> None:
-        pass
+        if memory().get("supervisor","")=="pm2": 
+            stopPm2(self.AppName)

@@ -172,9 +172,17 @@ class BaseProcesses(ABC):
         """
         if (id == None or name == None or autoStart == None) and retreive == False:raise Exception(f"Please fille all the vdata in process {self.processname}") 
         if not retreive:
+            exists = False
+            processes = self.get_all()
+            if len(processes) != 0:
+                for p in processes:
+                    if p.id == id:
+                        exists = True
+                        break
+            if exists: return
             __stored.append({
                 "id":id, 
-                "name":name, 
+                "name":name + "_" + str(id), 
                 "autoStart":autoStart, 
                 "args":args,
                 "path":self.processespath.replace("/","."),

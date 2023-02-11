@@ -24,7 +24,7 @@ class BaseMultiProcess(ABC, BaseParallel):
         self.process_path = path
         self.categoryName = categoryName
         self.autoStart = autoStart
-        self.loggingName = f"{self.name}_{self.id}" if hasattr(cls, "virtual") else f"{self.name}"
+        self.loggingName = f"{self.name}"
         self.loggerPath = f"temp/logs/processes/{self.categoryName}/{self.loggingName}.log"
         self.logger = {"name":self.loggingName, "path":self.loggerPath}
         self.process_args = args

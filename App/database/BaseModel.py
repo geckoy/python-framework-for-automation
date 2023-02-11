@@ -28,5 +28,26 @@ class BaseModel(Model):
     def close(self):
         self.db.close()
 
+    @classmethod
+    def inheritors_classes(klass) -> list:
+        """
+        This method return the classes that inherit the BaseModel class.
+        """
+        for d in listdir():
+            if re.match(".*Process", d, re.IGNORECASE):
+                processname = d.replace("Process", "")
+                path = f"{processname}Process.general.models"
+                importlib.import_module(path)
+        importlib.import_module("App.database.models")
+        subclasses = []
+        work = [klass]
+        while work:
+            parent = work.pop()
+            for child in parent.__subclasses__():
+                if child not in subclasses:
+                    subclasses.append(child)
+                    work.append(child)
+        return subclasses
+    
     class Meta:
-        database = getDatabaseConnection() # This model uses the "people.db" database.
+        database = getEnvDB()

@@ -9,12 +9,12 @@ from commands.BaseCommand import BaseCommand
 from typing import Any
 from App.abstract.process_managment.BaseProcesses import BaseProcesses
 class commands:
-    port = 6666
     def __init__(self) -> None:
         self.app = getApplication(True)
         if not self.app: raise Exception(f"No Application has been detected in {__file__}")
         self.app.commands = self
-        self.address = '127.0.0.1'
+        self.port = env("APP_COMMAND_PORT")
+        self.address = env("APP_COMMAND_HOST")
         self.SERVER : HTTPServer = HTTPServer((self.address,self.port), server_Handler(self.retreive_http_request))
         self.SERVER.timeout = 0.01
         self.commands : list[BaseCommand] = []
@@ -65,12 +65,12 @@ class commands:
         self.SERVER.handle_request()
 
     @classmethod
-    def send_http_req(self, data, port = None ) -> bool|None:
+    def send_http_req(self, data, port, host) -> bool|None:
         r = None
         while True:
             try:
-                PORT = port if port != None else self.port
-                conn = HTTPConnection(f"127.0.0.1:{PORT}")
+                PORT = port
+                conn = HTTPConnection(f"{host}:{PORT}")
                 headers = {'Content-type': 'application/json'}
                 json_data = json.dumps(data)
                 conn.request('POST', '/', json_data, headers)

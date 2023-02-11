@@ -5,7 +5,7 @@ class events:
         from app import application
         self.application :application = appli
 
-    def app_created(self, specific_processes:str = "") -> None:
+    def app_created(self) -> None:
         """
         ### Explanation:
         this event is launched when application is registered in memory and all running good. better to put inside all intilization stuff 'abstract stuff from app because isn't fully loaded only push don't try to fetch stuff from app or other classes'.
@@ -13,7 +13,7 @@ class events:
         None
         """
         debugMsg("Application created event launched")
-        self.application.exec_event("app_created", specific_processes)
+        self.application.exec_event("app_created", memory().get("specific_processes", ""))
         debugMsg("Application created event ended")
 
     def app_loop_before(self) -> None:

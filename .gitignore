@@ -9,3 +9,5 @@ test*.*
 mmclimodemProcess
 ProcessesToload.py
 serviceProcess
+*.db
+*.json

@@ -7,7 +7,7 @@ import json
 import subprocess
 import os
 from time import * 
-from peewee import SqliteDatabase
+from peewee import SqliteDatabase, MySQLDatabase
 from uuid import uuid4 as uid
 from inspect import getframeinfo, stack
 from App.typehints import *
@@ -53,13 +53,13 @@ def isDebug():
     else: 
         return False
 
-def getApplication( OnlyMemory :bool = False, *, debug:bool = False, specific_processes:str = ""):
+def getApplication( OnlyMemory :bool = False, *, debug:bool = False, supervisor:str=None, **kwargs):
     """
     ### Explanation:
     Helper function meant instantiate the application class and its saved into the memory, any subsequent invokes will serve from it. 
     ### Args:
     @OnlyMemory: can be [ True | False ], this param specify if you want to only pull the app from mem without instantiating it, default: False.
-    @specific_processes: can be string  name of the Processes seperated with comma, is used to set which specific Processes to Execute unless its empty.
+    @supervisor: string cli | pm2, this param specify whether we are using pm2 or cli to execute our code, default: None.
     ### return: 
     object, application from app.py
     None if OnlyMemory is True and no app is retreived
@@ -70,7 +70,7 @@ def getApplication( OnlyMemory :bool = False, *, debug:bool = False, specific_pr
     if not OnlyMemory:
         if result == default:
             from app import application
-            application(debug, specific_processes)
+            application(debug,supervisor, **kwargs)
             result : application = memory().get("application", default)
     
     return result
@@ -162,29 +162,33 @@ def get_os_distro() -> str:
     OS = platform.platform()
     return "linux" if re.match("linux", OS, re.IGNORECASE) else "Undefined"
 
-def start_application(supervisor:str = "cli", debug :bool = False, specific_processes:str = "") -> None:
+def start_application(supervisor:str = "cli", debug :bool = False, **kwargs) -> None:
     """
     ### Explanation:
     This function execute the start.py file which launches the application
     ### Args:
     @supervisor: can be string [ "cli" | "pm2" ], is used to define which supervisor will be used, default: cli.
     @debug: can be bool [ True | False ], is used to set launching mode of app, default: False.
-    @specific_processes: can be string name of the Processes seperated with comma, is used to set which specific Processes to Execute unless its empty.
+    @kwargs: app sepcific arguments.
     ### return:
     None
     """
+    additionals= ""
+    for k,v in kwargs.items():
+        if v: additionals += f" {k}=" +v
     isDebug = "True" if debug else "False"
     match supervisor:
         case "cli":
             print("Running App with SuperVisor cli")
-            os.system("python start.py {} {}".format(isDebug, specific_processes))
+            os.system("python start.py {} cli{}".format(isDebug, additionals))
         case "pm2":
             print("Running App with SuperVisor pm2")
-            return os.system(f"pm2 start start.py --name PYFFA -- {isDebug} {specific_processes}")
+            appName= env("APP_NAME")
+            return os.system(f"pm2 start start.py --name {appName} -- {isDebug} pm2{additionals}")
         case _:
             raise undefinedArgs("Please specify a supervisor")
 
-def getDatabaseConnection(dbDriver = "mysql", *, debug:bool = False)-> SqliteDatabase:
+def getDatabaseConnection(dbDriver = "mysql", *, debug:bool = False, **kwargs)-> SqliteDatabase|MySQLDatabase:
     """
     This function it serves the db connection for peewee BaseModel.
     """
@@ -192,10 +196,24 @@ def getDatabaseConnection(dbDriver = "mysql", *, debug:bool = False)-> SqliteDat
     debugMsg("Creating Database Connection {}", ( "'already Created'" if db else "") , Force = debug)
     if not db: 
         debugMsg("Database Connection Created", Force=debug)
-        db = SqliteDatabase("App/database/app.db")
+        db = SqliteDatabase(kwargs.get("dbpath")) if not dbDriver == "mysql" else MySQLDatabase(kwargs.get("mysqldbname"),user=kwargs.get("mysqldbun"), host=kwargs.get("mysqldbhost"), password=kwargs.get("mysqldbpw"))
         add2memory(db=db)
 
     return db
+
+def getEnvDB(debug:bool=False)-> SqliteDatabase|MySQLDatabase:
+    """This function return instance of db connection according to environment variables.
+    ### Example#1
+    >>> from App.Helpers import getEnvDB
+    >>> db = getEnvDB()
+
+    ## Args:
+        @debug (``bool``, optional): whether to log the connection steps in default app logging file or not. Defaults to ``False``.
+
+    ## Returns:
+        ``SqliteDatabase|MySQLDatabase``: database connection.
+    """
+    return getDatabaseConnection( dbDriver=env("APP_DATABASE"),dbpath=env("DB_LOCATION","App/database/app.db"), mysqldbname=env("MYSQL_DATABASE_NAME"), mysqldbun=env("MYSQL_USERNAME"), mysqldbhost=env("MYSQL_ADDRESS"), mysqldbpw=env("MYSQL_PASSWORD"), debug=debug)
 
 def applog( message:str, *args, event:str = "success", cli = False) -> None:
     """
@@ -307,8 +325,81 @@ def exec_command(cmName:str, action:str, metaData:dict = {}, type:str = "normal"
     The dict response can also have states, it responses from execution @status : True if all running good else False if command execution didn't occured as intended or None for exceptions or undefined action, @response for passed returned data it can be empty, e.g. { "status":True|False|None, "response":any }.  
     """
     from commands.commands import commands
-    return commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData })
+    return commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData }, port=env("APP_COMMAND_PORT"), host=env("APP_COMMAND_HOST"))
 
 def milli(sec = 0):
+    """
+    ### Explanation
+    This function return current milli or the current milliseconds with added seconds.
+    ### Args:
+    @sec: int, which is the seconds you want to add to the current milliseconds if zero nothing will be added and returns current milli, default: 0.
+    ### return:
+    int, milliseconds of current moment or future time.
+    """
     current = time() + sec
     return round(current * 1000)
+
+def env(name:str = "", defaultVal = "undefined"):
+    """
+    ### Explanation:
+    return enviromment variables
+    ### Args:
+    @name: string, name of the env variable, default: empty.
+    @defaultVal: string, value to return if env var not found, default:undefined.
+    ### return:
+    data type of env if found else return defaultVal if setted else throw KeyError.   
+    """
+    with open(memory().get("specific_env","settings.json"), "r") as settings:
+        envs = (json.load( settings ))
+    return envs.get(name, defaultVal) if not defaultVal == "undefined" else envs[name]
+
+def Dbmigration(purpose:str="runAll", specific:list=[]) -> None:
+    """This function run|drop|refresh migrations on environment database.
+    ### Example#1
+    execute migration on all tables.
+    >>> from App.Helpers import Dbmigration
+    >>> Dbmigration("refreshAll")
+    
+    ### Example#2
+    execute migration on specific tables
+    >>> from App.Helpers import Dbmigration
+    >>> from App.database.models import settings, users
+    >>> Dbmigration("run", [settings, users])
+
+    ## Args:
+        @purpose (``str``, optional): type of migration to execute whether to ```dropAll```, ``runAll``, ``refreshAll`` "the refreshAll purpose first drops all tables than repopulate them", and also you can execute migration using specific models by only removing the ``All`` from commands above and adding the second parameter @specific, see example#2. Defaults to ``"runAll"``.
+        @specific (``list[BaseModel]``, optional): execute migration on specific models. Defaults to ``[]``.
+
+    ## Returns:
+        ``None``: default.
+    """
+    from App.database.BaseModel import BaseModel
+    db = getEnvDB()
+    tables = BaseModel.inheritors_classes()
+    match purpose:
+        case "runAll":
+            #This purpose add non existing tables in database.
+            if len(tables) > 0: db.create_tables(tables)
+        case "dropAll":
+            #This purpose drop all existing tables in database.
+            if len(tables) > 0: db.drop_tables(tables)
+        case "refreshAll":
+            #This purpose drop all existing tables in database and add new ones.
+            if len(tables) > 0:
+                db.drop_tables(tables)
+                db.create_tables(tables)
+        case "run":
+            #This purpose add non existing specific tables in database.
+            if len(specific) > 0: db.create_tables(specific)
+        case "drop":
+            #This purpose drop existing specific tables in database.
+            if len(specific) > 0: db.drop_tables(specific)
+        case "refresh":
+            #This purpose drop specific existing tables in database and re-add.
+            if len(specific) > 0:
+                db.drop_tables(specific)
+                db.create_tables(specific)
+    return None
+
+def stopPm2(appName):
+    os.system(f"pm2 stop {appName}")
