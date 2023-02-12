@@ -1,10 +1,9 @@
 from vpsampleProcess.general.BaseVpsample import BaseVpsample
-
-class vpsample(BaseVpsample):
+from vpsampleProcess.general.vpsampleArgs import vpsampleArgs
+class vpsample(BaseVpsample, vpsampleArgs):
     parallel = True
     def initilize(self, id) -> None:
-        print(id)
-        self.counter = 0
+        self.setProperties()
 
 
     def run(self):

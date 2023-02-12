@@ -144,4 +144,11 @@ class BaseParallel:
             if "status" in self.parallel_shared_state:
                 res = self.parallel_shared_state.get("status")
         return res
+    
+    def parallel_ginfo(self) -> dict|None:
+        res = None
+        if self.parallel_process != None:
+            if "ginfo" in self.parallel_shared_state:
+                res = self.parallel_shared_state.get("ginfo")
+        return res
         

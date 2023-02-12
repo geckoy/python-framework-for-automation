@@ -115,6 +115,17 @@ class BaseMultiProcess(ABC, BaseParallel):
             del self.process_obj
             self.process_obj = None
     
+    def isInstantiated(self) -> bool:
+        """return whether the process object is instantiated or not
+
+        ## Returns:
+            ``bool``: true is process is instantiated else false.
+        """
+        if self.isParallel:
+            return True if self.parallel_process else False
+        else:
+            return True if self.process_obj else False
+    
     def isPaused(self) -> bool:
         """
         ### Explanation:
@@ -180,4 +191,26 @@ class BaseMultiProcess(ABC, BaseParallel):
             if self.process_obj != None:
                 res = self.process_obj.status
         
+        return res
+    
+    def ginfo(self) -> None|dict:
+        """
+        None, when process is closed
+        dict, response from process
+        """
+        res = None
+        if self.isParallel:
+            res = {**self.parallel_ginfo(), "status":self.parallel_status() } 
+        else:
+            if self.process_obj != None:
+                res = {**self.process_obj.ginfo, "status": self.process_obj.status}
+        BaseInfo = {
+            "isPaused":self.isPaused(),
+            "isInstantiated":self.isInstantiated()
+        }
+        if res:
+            res = {**res, **BaseInfo}
+        else:
+            res = BaseInfo
+
         return res

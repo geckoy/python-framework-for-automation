@@ -110,21 +110,15 @@ class commands:
         this method is executed when receiving post request from the server and return data of the executed command as dict 
         ### Args:
         @headers: object, headers of the http request, required.
-        @messageBody: dict, client build message body, @type: specify the type of method to exec 'ez for ez_command or normal for exec_command', @rest of other keys are arguments to be passed for the speicified method in the @type key.
+        @messageBody: dict, client build message body.
         ### return:
-        bool, False for type not found.
-        None, for exception occured or undefiend command.
+        bool, False for undefiend command.
+        None, for exception occured.
         dict, for command response.  
         """
-        res = False
         try:
-            type = messageBody["type"]
-            del messageBody["type"]
-            if type == "normal":
-                res = self.exec_command(**messageBody)
-            elif type == "ez":
-                pass
-                # res = self.ez_command()
+            res = self.exec_command(**messageBody)
+            res = res if res != None else False
         except KeyboardInterrupt as err:
             raise err
 
@@ -152,16 +146,6 @@ class commands:
             res = command.execC(action, metaData)
 
         return res
-    
-    def ez_command(self, action:str):
-        """
-        ### Explanation:
-        ez command are commands that searched by method name and should accept no args or logic concept "be sure the action name exists as method name in the command class".
-        """
-        for c in self.commands:
-            if hasattr(c, action):
-                getattr(c, action)()
-                break
 
     def add_command(self, command:BaseCommand) -> None:
         """

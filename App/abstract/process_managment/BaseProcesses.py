@@ -139,7 +139,21 @@ class BaseProcesses(ABC):
         list, containing the process managing object that extends BaseMultiProcess.
         """
         return self.processes
-    
+
+    def get_all_names(self) -> list[str]:
+        """
+        ### Explanation:
+        this method return all of the processes names that extends BaseMultiProcess
+        ### Args:
+        accept no args.
+        ### return:
+        list, containing the processes names that extends BaseMultiProcess, if nothing it will return empty list.
+        """
+        procs = []
+        for p in self.processes:
+            procs.append(p.name)
+        return procs
+
     def get(self, name:str) -> BaseMultiProcess|None:
         """
         ### Explanation:

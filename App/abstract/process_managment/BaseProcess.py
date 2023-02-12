@@ -16,7 +16,12 @@ class BaseProcess(ABC):
         self.name = name
         self.__parallel_args = Parallel_args
         self.status = ""
+        self.ginfo = {}
+        self.set_status("Process Initilizing...")
+        self.log_success("Process Initilizing...")
         self.initilize(*args)
+        self.set_status("Process Initilized")
+        self.log_success("Process Initilized")
         
     @property
     def events(self)-> list[str]:
@@ -101,3 +106,12 @@ class BaseProcess(ABC):
     
     def stop(self):
         self.exec_command(f"{self.categoryName}Commands", f"stop_{self.categoryName}", {f"{self.categoryName}_name":self.name, "timeout":1})
+    
+    def set_process_ginfo(self, name, val):
+        if isinstance(val, str) or isinstance(val, int) or isinstance(val, list):
+            val = str(val)
+            if hasattr(self, "parallel"):
+                if not "ginfo" in self.__parallel_args: self.__parallel_args["ginfo"] = {}
+                self.__parallel_args["ginfo"]= {**self.__parallel_args["ginfo"], name:val}
+            else:
+                self.ginfo[name] = val

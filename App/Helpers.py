@@ -308,7 +308,7 @@ def _logEvent(logger:object, Title:str, *args, Epath, event):
     msg = f"{identification}\n" + Title + additionals + "\nFILE PATH: {}"+ f"\n{identification}"
     log(logger, msg, *args, Epath, event=event)
 
-def exec_command(cmName:str, action:str, metaData:dict = {}, type:str = "normal"):
+def exec_command(cmName:str, action:str, metaData:dict = {}):
     """
     ### Explanation:
     This function execute command using socket connection to the app command listener.
@@ -318,14 +318,28 @@ def exec_command(cmName:str, action:str, metaData:dict = {}, type:str = "normal"
     @metaData: dict, additional data to be passed, default: empty dict.
     @type: string, normal or ez command, default:normal.
     ### return:
-    bool, False for type not found.
-    None, for exception occured or undefiend command.
-    dict, for command response.
+    bool, False for undefiend command.\n
+    None, for exception occured.\n
+    dict, for command response.\n
+    "app_is_closed", when app is closed.\n
     ### Note:
     The dict response can also have states, it responses from execution @status : True if all running good else False if command execution didn't occured as intended or None for exceptions or undefined action, @response for passed returned data it can be empty, e.g. { "status":True|False|None, "response":any }.  
     """
     from commands.commands import commands
-    return commands.send_http_req({ "type":type,"cmName": cmName,"action":action, "metaData":metaData }, port=env("APP_COMMAND_PORT"), host=env("APP_COMMAND_HOST"))
+    cmres:str = commands.send_http_req({ "cmName": cmName,"action":action, "metaData":metaData }, port=env("APP_COMMAND_PORT"), host=env("APP_COMMAND_HOST"))
+    if cmres == None: 
+        cmres ="app_is_closed"
+    else:
+        type = cmres.split("|")[0]
+        msg = cmres.split("|",1)[1]
+        if "bool" in type:
+            cmres = bool(msg)
+        elif "dict" in type:
+            cmres = json.loads(msg)
+        elif "NoneType" in type:
+            cmres = None
+
+    return cmres 
 
 def milli(sec = 0):
     """

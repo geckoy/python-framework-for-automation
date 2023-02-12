@@ -44,6 +44,14 @@ class BaseProcessCommands(ABC):
                 self.returnCMres(True, response)
             else:
                 self.returnCMres(False, f"""{self.processname}_{metaData[f"{self.processname}_name"]}_closed""")
+            
+        elif action == f"get_ginfo_{self.processname}":
+            p = self.get_specific_procs(metaData)
+            response = p.ginfo()
+            if response != None:
+                self.returnCMres(True, response)
+            else:
+                self.returnCMres(False, f"""{self.processname}_{metaData[f"{self.processname}_name"]}_closed""")
 
     def get_specific_procs(self, metaData:dict) -> BaseMultiProcess:
         p = self.process.get(metaData[f"{self.processname}_name"])

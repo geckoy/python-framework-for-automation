@@ -1,12 +1,12 @@
 from psampleProcess.general.BasePsample import BasePsample
 from App.Helpers import *
-
-class counterparallel(BasePsample):
+from psampleProcess.general.psampleArgs.counterparallel import counterparallel as args
+class counterparallel(BasePsample, args):
     events = [
     ]
     parallel = True
     def initilize(self, *args) -> None:
-        self.mycounter = 0
+        self.setProperties()
 
     def run(self):
         counter = self.mycounter 
