@@ -88,9 +88,9 @@ class BaseProcess(ABC):
         """
         debugMsg(message, *args, Force=Force, specificFile={"name":self.logger['name'], "path":self.logger['path']})
 
-    def exec_command(self, cmName:str, action:str, metaData:dict = {}, type:str = "normal" ) -> Any|None:
+    def exec_command(self, cmName:str, action:str, metaData:dict = {}) -> Any|None:
         if hasattr(self, "parallel"):
-            return exec_command(cmName, action, metaData, type)
+            return exec_command(cmName, action, metaData)
         else:
             app = getApplication(True)
             if app == None: return None
@@ -98,7 +98,7 @@ class BaseProcess(ABC):
     
     def set_status(self, stats:str):
         if isinstance(stats, str):
-            stats = stats + "|" + str(datetime.datetime.now())
+            stats = stats + "|" + str(datetime.datetime.now().strftime("%H:%M:%S-%d"))
             if hasattr(self, "parallel"):
                 self.__parallel_args["status"] = stats
             else:

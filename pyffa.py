@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import typer
 from App.Helpers import *
+from App.tkinter.interface import interface
 app = typer.Typer()
 
 
@@ -20,6 +21,12 @@ def migration(purpose:str = "runAll", specific_env:str = typer.Option("", help="
     if specific_env: add2memory(specific_env=specific_env)
     Dbmigration(purpose)
 
+@app.command()
+def gui(specific_env:str = typer.Option("", help="Specific settings.json file to retreive env var's from, e.g. python pyffa.py migration --purpose=runAll --specific-env=settings_test.json")):
+    if specific_env: add2memory(specific_env=specific_env)
+    MainFrame = interface()
+    MainFrame.display()
+    
 @app.command()
 def hello(name: str):
     print(f"Hello {name}")

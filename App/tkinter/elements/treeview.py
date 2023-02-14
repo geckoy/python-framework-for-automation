@@ -14,6 +14,7 @@ class treeview(dict):
         container = ttk.Frame(parent)
         container.pack()#fill='both', expand=True
         # create a treeview with dual scrollbars
+        self.headers = headers
         tree = ttk.Treeview(container, columns=headers, selectmode="browse", show="headings")
         vsb = ttk.Scrollbar(orient="vertical", command=tree.yview)
         hsb = ttk.Scrollbar( orient="horizontal", command=tree.xview)
@@ -44,11 +45,14 @@ class treeview(dict):
         for item in lists:
             self.tree.insert('', 'end', values=item)
             # adjust column's width if necessary to fit each value
-            # for ix, val in enumerate(item):
-            #     col_w = tkFont.Font().measure(val)
-            #     if self.tree.column(headers[ix],width=None)<col_w:
-            #         self.tree.column(headers[ix], width=col_w)
-
+            try:
+                for ix, val in enumerate(item):
+                    col_w = tkFont.Font().measure(val)
+                    if self.tree.column(self.headers[ix],width=None)<col_w:
+                        self.tree.column(self.headers[ix], width=col_w)
+            except BaseException as err:
+                pass
+                # print("error occured in set_lists: ", err)
 def sortby(tree, col, descending):
     """sort tree contents when a column header is clicked on"""
     # grab values to sort

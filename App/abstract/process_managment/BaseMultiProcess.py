@@ -200,10 +200,14 @@ class BaseMultiProcess(ABC, BaseParallel):
         """
         res = None
         if self.isParallel:
-            res = {**self.parallel_ginfo(), "status":self.parallel_status() } 
+            res = self.parallel_ginfo() 
+            res = res if res != None else {}
+            res = {**res, "status":self.parallel_status() } 
         else:
             if self.process_obj != None:
                 res = {**self.process_obj.ginfo, "status": self.process_obj.status}
+            else:
+                res = {"status":None}
         BaseInfo = {
             "isPaused":self.isPaused(),
             "isInstantiated":self.isInstantiated()
