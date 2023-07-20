@@ -8,7 +8,8 @@ class BaseCommand(ABC):
         self.name = name
         self.filePath = filePath
         self.__set_default_res()
-
+        self.initilize()
+        
     def execC(self, action:str, metaData:dict) -> exec_command_returned_dict:
         """
         ### Explanation:
@@ -67,3 +68,9 @@ class BaseCommand(ABC):
         self.status = status
         self.res = response
         raise CommandReturnMessage()
+
+    @abstractmethod
+    def initilize(self) -> None:
+        """This abstract method it should be defined by the child class that inherit this BaseCommand class, and is invoked when the class is instantiated.
+        """
+        pass

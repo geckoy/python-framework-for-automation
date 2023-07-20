@@ -2,6 +2,9 @@ from commands.BaseCommand import BaseCommand
 from App.Helpers import *
 from App.abstract.process_managment.BaseProcesses import BaseProcesses
 class manage_app(BaseCommand):
+    
+    def initilize(self) -> None:
+        pass
 
     def exec(self, action:str, metaData:dict) -> exec_command_returned_dict:
         if action == "stop_app":

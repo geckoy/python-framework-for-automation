@@ -11,3 +11,5 @@ ProcessesToload.py
 serviceProcess
 *.db
 *.json
+browserUserData
+share
