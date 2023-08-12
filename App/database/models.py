@@ -6,5 +6,5 @@ class Settings(BaseModel):
     name = CharField()
     name_value = CharField()
     
-    def modelCreate(self, **kwargs):
+    def modelCreateRecord(self, **kwargs):
         obj = self.create(**kwargs)

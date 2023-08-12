@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from App.Helpers import *
 import datetime
+import inspect
 class BaseProcess(ABC):
     """
     ### Explanation:
@@ -69,7 +70,32 @@ class BaseProcess(ABC):
         pass
     
     def log_success(self, Title:str, *args, Epath:str = None):
+        """This Method Logs success in the process log file.
+
+        Args:
+            Title (str): your log text
+            Epath (str, optional): path of the log file. Defaults to None.
+        """
+        frame_info = inspect.stack()[1]  # Get information about the caller (1 level up in the stack)
+        file_path = frame_info.filename   # Extract the file path from the frame information
+        line_number = str(frame_info.lineno)
+        if Epath == None:
+            Epath=os.path.abspath(file_path)+":"+line_number
         logS(getLogging(self.logger["name"], self.logger["path"]), Title, *args, Epath = Epath )
+
+    def log_error(self, Title:str, *args, Epath:str = None):
+        """This Method Logs error in the process log file.
+
+        Args:
+            Title (str): your log text
+            Epath (str, optional): path of the log file. Defaults to None.
+        """
+        frame_info = inspect.stack()[1]  # Get information about the caller (1 level up in the stack)
+        file_path = frame_info.filename   # Extract the file path from the frame information
+        line_number = str(frame_info.lineno)
+        if Epath == None:
+            Epath=os.path.abspath(file_path)+":"+line_number
+        logE(getLogging(self.logger["name"], self.logger["path"]), Title, *args, Epath = Epath )
     
     def debugMsg(self, message:str, *args, Force:bool = False, specificFile:str =None) -> None:
         """
@@ -97,6 +123,13 @@ class BaseProcess(ABC):
             app.commands.exec_command(cmName, action, metaData)
     
     def set_status(self, stats:str):
+        """when you invoke This method with its stats param, it will register this stats into 
+        memory of the app, you can check on stats using exec_command helper function or check it
+        on the Pyffa gui. 
+
+        Args:
+            stats (str): type a text describing the stats of your current process.
+        """
         if isinstance(stats, str):
             stats = stats + "|" + str(datetime.datetime.now().strftime("%H:%M:%S-%d"))
             if hasattr(self, "parallel"):
@@ -108,6 +141,13 @@ class BaseProcess(ABC):
         self.exec_command(f"{self.categoryName}Commands", f"stop_{self.categoryName}", {f"{self.categoryName}_name":self.name, "timeout":1})
     
     def set_process_ginfo(self, name, val):
+        """This method track process attributes and keep them up to date with pyffa memory 
+        you can check on them using exec_command.
+
+        Args:
+            name (_type_): name of the attribute. 
+            val (_type_): value of the attribute.
+        """
         if isinstance(val, str) or isinstance(val, int) or isinstance(val, list):
             val = str(val)
             if hasattr(self, "parallel"):

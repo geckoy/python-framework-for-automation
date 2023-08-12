@@ -13,3 +13,5 @@ serviceProcess
 *.json
 browserUserData
 share
+Api
+blsProcess
