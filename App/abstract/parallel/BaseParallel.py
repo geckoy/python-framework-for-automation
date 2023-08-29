@@ -123,20 +123,21 @@ class BaseParallel:
         ### return:
         None
         """
-        obj = cls(logger, cat_name, name, *args, Parallel_args = Shared_state)
-        attr = getattr(obj, clsattr)
-        while True:
-            try:
-                if stopEv.is_set(): 
-                        obj.app_close()
-                        self.parallel_issuccess_stopEv.set()
-                        break
+        try:
+            obj = cls(logger, cat_name, name, *args, Parallel_args = Shared_state)
+            attr = getattr(obj, clsattr)
+            while True:
+                
+                    if stopEv.is_set(): 
+                            obj.app_close()
+                            self.parallel_issuccess_stopEv.set()
+                            break
 
-                if not pauseEv.is_set():
-                    attr()
-                    sleep(0.01)
-            except BaseException as err: 
-                logE(getLogging(logger["name"], logger["path"]),f"Process of {cat_name} '{name}' catched an error", traceback.format_exc(), err)
+                    if not pauseEv.is_set():
+                        attr()
+                        sleep(0.01)
+        except BaseException as err: 
+            logE(getLogging(logger["name"], logger["path"]),f"Process of {cat_name} '{name}' catched an error", traceback.format_exc(), err)
         
     def parallel_status(self) -> str|None:
         res = None
