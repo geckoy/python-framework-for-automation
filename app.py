@@ -60,6 +60,6 @@ class application(apptypehints):
     def close(self):
         raise KeyboardInterrupt
 
-    def __del__(self) -> None:
-        if memory().get("supervisor","")=="pm2": 
-            stopPm2(self.AppName)
+    # def __del__(self) -> None:
+    #     if memory().get("supervisor","")=="pm2": 
+    #         stopPm2(self.AppName)
