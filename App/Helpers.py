@@ -165,7 +165,7 @@ def get_os_distro() -> str:
 def start_application(supervisor:str = "cli", debug :bool = False, **kwargs) -> None:
     """
     ### Explanation:
-    This function execute the start.py file which launches the application
+    This function execute the startpyffa.py file which launches the application
     ### Args:
     @supervisor: can be string [ "cli" | "pm2" ], is used to define which supervisor will be used, default: cli.
     @debug: can be bool [ True | False ], is used to set launching mode of app, default: False.
@@ -180,11 +180,11 @@ def start_application(supervisor:str = "cli", debug :bool = False, **kwargs) -> 
     match supervisor:
         case "cli":
             print("Running App with SuperVisor cli")
-            os.system("python start.py {} cli{}".format(isDebug, additionals))
+            os.system("python startpyffa.py {} cli{}".format(isDebug, additionals))
         case "pm2":
             print("Running App with SuperVisor pm2")
             appName= env("APP_NAME")
-            return os.system(f"pm2 start start.py --name {appName} -- {isDebug} pm2{additionals}")
+            return os.system(f"pm2 start startpyffa.py --name {appName} -- {isDebug} pm2{additionals}")
         case _:
             raise undefinedArgs("Please specify a supervisor")
 
@@ -414,6 +414,11 @@ def Dbmigration(purpose:str="runAll", specific:list=[]) -> None:
                 db.drop_tables(specific)
                 db.create_tables(specific)
     return None
+
+def killGrandChildren(self, specificEnv:str = ""):
+    sleep(1)
+    command = 'pkill -9 -f "python .*startpyffa\.py.*"' if len(specificEnv) == 0 else 'pkill -9 -f "python .*startpyffa\.py.*specific_env={}'.format(specificEnv)
+    os.system(command)
 
 def stopPm2(appName):
     os.system(f"pm2 stop {appName}")
