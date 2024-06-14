@@ -6,7 +6,7 @@ class BaseParallel:
     ### Explanation:
     This Base Parallel class is class make any class run in parallel 
     """
-    def set_parallel(self, cls, clsattr:str, args, logger:dict, categoryName:str, name:str) -> None:
+    def set_parallel(self, cls, clsattr:str, args, logger:dict, categoryName:str, name:str, autoStart:bool=False) -> None:
         """
         ### Explanation:
         This method prepare the attribute needed for parallel concept
@@ -14,6 +14,7 @@ class BaseParallel:
         @cls: class, the class you want to execute in parallel, required.
         @clsattr: string, name of the method want to execute in interval way, required.
         @args: list, arguments that will be passed into the class init method, required.
+        @autoStart: bool, if True all parallel processes will start as paused.
         ### return:
         None
         """
@@ -28,8 +29,10 @@ class BaseParallel:
         self.parallel_logger = logger
         self.parallel_cat_name = categoryName
         self.name = name
+        if not autoStart:
+            self.pause_parallel()
 
-    def start_parallel(self, cls, clsattr:str, args:list, logger:dict, categoryName:str, name:str) -> bool:
+    def start_parallel(self, cls, clsattr:str, args:list, logger:dict, categoryName:str, name:str, autoStart:bool=False) -> bool:
         """
         ### Explanation:
         This method is entry point to start class in parallel, "it will be instantiated inside the parallel process". 
@@ -37,6 +40,7 @@ class BaseParallel:
         @cls: class, the class you want to execute in parallel, required.
         @clsattr: string, name of the method want to execute in interval way, required.
         @args: list, arguments that will be passed into the class init method, required.
+        @autoStart: bool, if True all parallel processes will start as paused.
         ### return:
         bool: True if started else false.
         """
@@ -44,7 +48,7 @@ class BaseParallel:
         if not hasattr(self, "parallel_process"): self.parallel_process = None
         if self.parallel_process == None:    
             started = True
-            self.set_parallel(cls, clsattr, args, logger, categoryName, name)
+            self.set_parallel(cls, clsattr, args, logger, categoryName, name, autoStart)
             self.parallel_process = Process(target=self.parallel, args=(self.parallel_cls, self.parallel_clsattr, self.parallel_pauseEv, self.parallel_stopEv, self.parallel_logger, self.parallel_cat_name, self.name, self.parallel_shared_state, *self.parallel_cls_args))    
             self.parallel_process.start()
         return started

@@ -65,8 +65,7 @@ class BaseMultiProcess(ABC, BaseParallel):
         else:
             if not hasattr(self, "called_parallel"):
                 setattr(self, "called_parallel", True)
-                if self.autoStart:
-                    self.start()
+                self.start()
                 
     def __run(self, event:str = None):
         if not self.isPaused(): 
@@ -91,7 +90,7 @@ class BaseMultiProcess(ABC, BaseParallel):
         """
         started = False
         if self.isParallel:
-            started = self.start_parallel(self.process_class, "run", self.process_args, {"name":self.loggingName, "path":self.loggerPath}, self.categoryName, self.name)
+            started = self.start_parallel(self.process_class, "run", self.process_args, {"name":self.loggingName, "path":self.loggerPath}, self.categoryName, self.name, self.autoStart)
         elif self.process_obj == None: 
             started = True
             self.process_obj = self.process_class(self.logger, self.categoryName, self.name, *self.process_args)
