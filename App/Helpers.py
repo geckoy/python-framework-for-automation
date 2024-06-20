@@ -160,7 +160,7 @@ def get_os_distro() -> str:
     """
     import platform
     OS = platform.platform()
-    return "linux" if re.match("linux", OS, re.IGNORECASE) else "Undefined"
+    return "linux" if re.match("linux", OS, re.IGNORECASE) else ("windows" if re.match("windows", OS, re.IGNORECASE) else None)
 
 def start_application(supervisor:str = "cli", debug :bool = False, **kwargs) -> None:
     """
@@ -416,9 +416,11 @@ def Dbmigration(purpose:str="runAll", specific:list=[]) -> None:
     return None
 
 def killGrandChildren(self, specificEnv:str = ""):
-    sleep(1)
-    command = 'pkill -9 -f "python .*startpyffa\.py.*"' if len(specificEnv) == 0 else 'pkill -9 -f "python .*startpyffa\.py.*specific_env={}'.format(specificEnv)
-    os.system(command)
+    operatingsys = get_os_distro()
+    if operatingsys == "linux":
+        sleep(1)
+        command = 'pkill -9 -f "python .*startpyffa\.py.*"' if len(specificEnv) == 0 else 'pkill -9 -f "python .*startpyffa\.py.*specific_env={}'.format(specificEnv)
+        os.system(command)
 
 def stopPm2(appName):
     os.system(f"pm2 stop {appName}")
