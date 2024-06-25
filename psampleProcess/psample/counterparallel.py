@@ -5,6 +5,7 @@ class counterparallel(BasePsample, args):
     events = [
     ]
     parallel = True
+    parallelTimeout = 1
     def initilize(self, *args) -> None:
         self.setProperties()
 

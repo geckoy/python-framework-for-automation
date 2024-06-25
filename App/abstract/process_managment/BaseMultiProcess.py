@@ -30,6 +30,7 @@ class BaseMultiProcess(ABC, BaseParallel):
         self.process_args = args
         self.process_obj :BaseProcess|None = None
         self.isParallel = True if hasattr(cls, "parallel") else False
+        self.ParallelTimeout = getattr(cls, "parallelTimeout") if hasattr(cls, "parallelTimeout") else 0.01
         self.initilize()
 
     def initilize(self) -> None:
@@ -176,7 +177,7 @@ class BaseMultiProcess(ABC, BaseParallel):
         ### return:
         None
         """
-        self.stop(0.1)
+        self.stop(self.ParallelTimeout)
     
     def status(self) -> None|str:
         """
