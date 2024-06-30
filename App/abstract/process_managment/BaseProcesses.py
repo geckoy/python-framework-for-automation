@@ -171,6 +171,31 @@ class BaseProcesses(ABC):
 
         return S
 
+    def remove_Process(self, name:str) -> bool:
+        """
+            stops then wipe process from memory
+
+            ### Args:
+                - `@name` (str): name of the desired process to delete
+
+            ### Returns:
+                    `@bool`: True if removed else False
+
+
+        """
+        removed = False
+        counter = 0;PositionToremove = None
+        for s in self.processes:
+            if s.name == name:
+                PositionToremove = counter
+                break
+            counter += 1
+        if PositionToremove != None: 
+            self.processes[PositionToremove].app_close()
+            del self.processes[PositionToremove]
+            removed = True
+        return removed
+
     def set_vdata(self, id:int = None, name:str = None, autoStart:bool = None, args:list = [], *, retreive = False, __stored:list = []) -> list[dict]|None:
         """
         ### Explanation:

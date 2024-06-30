@@ -140,6 +140,8 @@ class BaseParallel:
                     if not pauseEv.is_set():
                         attr()
                         sleep(0.01)
+                    else:
+                        sleep(10)
                 except KeyboardInterrupt:
                     pass
         except BaseException as err: 

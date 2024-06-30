@@ -37,6 +37,10 @@ class BaseProcessCommands(ABC):
                 
             self.returnCMres(True, True)
 
+        elif action == f"remove_{self.processname}":
+
+            self.returnCMres(True, self.process.remove_Process(metaData[f"{self.processname}_name"]))
+
         elif action == f"get_status_{self.processname}":
             p = self.get_specific_procs(metaData)
             response = p.status()
