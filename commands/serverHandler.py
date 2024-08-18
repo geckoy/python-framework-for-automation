@@ -39,6 +39,15 @@ def server_Handler(process:Callable):
             message = json.dumps(process(self.headers, json.loads(post_body)))
             self.wfile.write(bytes(message, "utf8"))
 
+
+        def do_OPTIONS(self):
+            self.send_response(200, "ok")
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+            self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
+            
         def do_GET(self):
             # Serve the main HTML page
             MainPath = pathlib.Path().resolve();FullPath = f"{MainPath}{self.path}"

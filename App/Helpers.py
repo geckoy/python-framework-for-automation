@@ -341,7 +341,7 @@ def exec_command(cmName:str, action:str, metaData:dict = {}):
 
     return cmres 
 
-def milli(sec = 0):
+def milli(sec:int= 0, start_milli:int=None):
     """
     ### Explanation
     This function return current milli or the current milliseconds with added seconds.
@@ -350,8 +350,11 @@ def milli(sec = 0):
     ### return:
     int, milliseconds of current moment or future time.
     """
-    current = time() + sec
-    return round(current * 1000)
+    if start_milli != None:
+        current = start_milli + (sec * 1000)
+    else:
+        current = (time() + sec)* 1000
+    return round(current)
 
 def env(name:str = "", defaultVal = "undefined"):
     """
