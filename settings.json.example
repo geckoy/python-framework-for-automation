@@ -1,11 +1,13 @@
 {
     "APP_NAME":"pyBot",
-    "APP_DATABASE":"mysql",
+    "APP_DATABASE":"file",
     "APP_COMMAND_HOST":"127.0.0.1",
-    "APP_COMMAND_PORT":6666,
+    "APP_COMMAND_PORT":8090,
+    "APP_ASSETS_HOST":"127.0.0.1",
+    "APP_ASSETS_PORT":8080,
     "MYSQL_ADDRESS":"127.0.0.1",
-    "MYSQL_USERNAME":"gecko",
+    "MYSQL_USERNAME":"gecko1",
     "MYSQL_PASSWORD":"mysql",
-    "MYSQL_DATABASE_NAME":"pyffa",
+    "MYSQL_DATABASE_NAME":"blsappointer",
     "DB_LOCATION":"App/database/app.db"
 }
