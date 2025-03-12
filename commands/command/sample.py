@@ -1,6 +1,7 @@
 from commands.BaseCommand import BaseCommand
 from App.Helpers import *
 class sample(BaseCommand):
+    synchronous = []
     def initilize(self) -> None:
         pass
 

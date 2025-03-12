@@ -2,7 +2,7 @@ from commands.BaseCommand import BaseCommand
 from App.Helpers import *
 from App.abstract.process_managment.BaseProcesses import BaseProcesses
 class manage_app(BaseCommand):
-    
+    synchronous = ["test"]
     def initilize(self) -> None:
         pass
 
@@ -12,7 +12,8 @@ class manage_app(BaseCommand):
         elif action == "check_app":
            self.check_app()
         elif action == "test":
-            sleep((15*60))
+            print("received request")
+            sleep((5))
             self.returnCMres(True, "slept well jhon")
         elif action == "get_running_processes":
             res = [x.processname for x in BaseProcesses.inheritors() if x.processname in dir(self.app)]

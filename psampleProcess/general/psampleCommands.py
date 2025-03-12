@@ -4,6 +4,7 @@ from App.abstract.process_managment.BaseProcessCommands import BaseProcessComman
 class psampleCommands(BaseCommand, BaseProcessCommands):
 
     processname = "psample"
+    synchronous = []
     
     def initilize(self) -> None:
         pass

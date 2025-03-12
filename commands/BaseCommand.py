@@ -7,10 +7,11 @@ class BaseCommand(ABC):
         self.app :application = appli
         self.name = name
         self.filePath = filePath
+        self.syncID = []
         self.__set_default_res()
         self.initilize()
         
-    def execC(self, action:str, metaData:dict) -> exec_command_returned_dict:
+    def execC(self, action:str, metaData:dict, uniqueID:str) -> exec_command_returned_dict:
         """
         ### Explanation:
         this method is execute specific action.
@@ -22,6 +23,20 @@ class BaseCommand(ABC):
         """
         try:
             self.__set_default_res()
+            
+            isSync = False
+            if hasattr(self, "synchronous"):
+                if action in self.synchronous:
+                    isSync = True
+
+            if isSync:
+                self.syncID.append(uniqueID)
+                while True:
+                    sleep(0.1)
+                    current = self.syncID[0]
+                    if uniqueID == current:
+                        break
+                
             self.exec(action, metaData)
             
         except CommandReturnMessage:
@@ -35,6 +50,10 @@ class BaseCommand(ABC):
             return {
                 "status": None,"response":"command_execution_catched_error"
             }
+
+        if isSync:
+            self.syncID.pop(0)
+
         return self.__set_res()
 
     @abstractmethod

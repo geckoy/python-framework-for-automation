@@ -8,6 +8,13 @@ import re
 from commands.BaseCommand import BaseCommand
 from typing import Any
 from App.abstract.process_managment.BaseProcesses import BaseProcesses
+from uuid import uuid4
+from socketserver import ThreadingMixIn
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+    pass
+
 class commands:
     def __init__(self) -> None:
         self.app = getApplication(True)
@@ -15,7 +22,7 @@ class commands:
         self.app.commands = self
         self.port = env("APP_COMMAND_PORT")
         self.address = env("APP_COMMAND_HOST")
-        self.SERVER : HTTPServer = HTTPServer((self.address,self.port), server_Handler(self.retreive_http_request))
+        self.SERVER : ThreadedHTTPServer = ThreadedHTTPServer((self.address,self.port), server_Handler(self.retreive_http_request))
         self.SERVER.timeout = 0.01
         self.commands : list[BaseCommand] = []
         self.initilize()
@@ -140,10 +147,11 @@ class commands:
         dict, return the response from executed action @status : True if all running good else False if command execution didn't occured as intended or None for exceptions or undefined action, @response for passed returned data it can be empty, e.g. { "status":True|False|None, "response":any }. 
         None, for undefied command
         """
+        uniqueID = str(uuid4())
         res = None
         command = self.get_command(cmName)
         if command:
-            res = command.execC(action, metaData)
+            res = command.execC(action, metaData, uniqueID)
 
         return res
 
