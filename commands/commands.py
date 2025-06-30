@@ -70,6 +70,8 @@ class commands:
 
     def check_new_request(self) -> None:
         self.SERVER.handle_request()
+        if self.app.closeFlag:
+            self.app.close()
 
     @classmethod
     def send_http_req(self, data, port, host) -> bool|None:

@@ -24,6 +24,7 @@ class application(apptypehints):
         self.eventsApi = events(self)
         self.events : ev = ev()
         self.commands : commands = commands()
+        self.closeFlag = False
 
         #5 launch creating event
         self.eventsApi.app_created()

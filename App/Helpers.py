@@ -120,34 +120,55 @@ def getLogging(name, path, rotation = "1 MB") -> logger :
 
     return response
 
-def memory(purpose :str = "get", *args, __mem : dict = {}, **kwargs ) -> dict | None:
+def memory(purpose: str = "get", *args, __mem: dict = {}, __expiry: dict = {}, timeout: int = None, **kwargs) -> dict | None:
     """
     ### Explanation:
-    This function used to store data in static param dict, used as memory to store data.
-    ### return:
-    dict, the store data key-value.\n
-    None, if some other purpose have made like adding or removing.
+    This function stores data in a static dictionary as memory.
+    It now supports automatic deletion of keys after a timeout.
+
+    ### Args:
+    - `purpose` (str): "get", "add", "remove"
+    - `timeout` (int): Time in milliseconds before key expires (only for "add").
+    - `args`: Keys to remove.
+    - `kwargs`: Key-value pairs to add.
+
+    ### Return:
+    - `dict`: The stored key-value pairs.
+    - `None`: If adding or removing.
     """
+
+    # Clean up expired keys before doing anything
+    current_time = milli()
+    expired_keys = [k for k, expiry in __expiry.items() if expiry and expiry <= current_time]
+    for k in expired_keys:
+        __mem.pop(k, None)
+        __expiry.pop(k, None)
+
     response = None
-    match purpose :
+    match purpose:
         case "get":
-            response = __mem 
+            response = {k: v for k, v in __mem.items() if k not in expired_keys}  # Exclude expired keys
+
         case "add":
-            __mem.update({**kwargs})
+            for k, v in kwargs.items():
+                __mem[k] = v
+                if timeout:
+                    __expiry[k] = milli(timeout)  # Store expiry time
+
         case "remove":
             for k in args:
-                try:
-                    del __mem[k]
-                except: 
-                    pass
-    
+                __mem.pop(k, None)
+                __expiry.pop(k, None)
+
     return response
 
-def add2memory(**kwargs):
+def add2memory(timeout: int = None, **kwargs):
+    """Adds items to memory with optional expiration."""
     if kwargs:
-        memory("add",**kwargs)
+        memory("add", timeout=timeout, **kwargs)
 
 def remove4rmemory(*args):
+    """Removes items from memory."""
     if args:
         memory("remove", *args) 
 

@@ -28,4 +28,4 @@ class manage_app(BaseCommand):
         self.returnCMres(True, True)
 
     def stop_app(self):
-        self.app.close()
+        self.app.closeFlag = True
