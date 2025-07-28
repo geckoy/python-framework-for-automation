@@ -114,13 +114,15 @@ class BaseProcess(ABC):
         """
         debugMsg(message, *args, Force=Force, specificFile={"name":self.logger['name'], "path":self.logger['path']})
 
-    def exec_command(self, cmName:str, action:str, metaData:dict = {}) -> Any|None:
+    def exec_command(self, cmName:str, action:str, metaData:dict = {}, *, START_MSG = None, END_MSG = None) -> Any|None:
+        if START_MSG != None: self.set_status(START_MSG)
         if hasattr(self, "parallel"):
             return exec_command(cmName, action, metaData)
         else:
             app = getApplication(True)
             if app == None: return None
             app.commands.exec_command(cmName, action, metaData)
+        if END_MSG != None: self.set_status(END_MSG)
     
     def set_status(self, stats:str):
         """when you invoke This method with its stats param, it will register this stats into 
