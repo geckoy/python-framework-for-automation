@@ -5,3 +5,4 @@ tk==0.1.0
 typer==0.7.0
 mysqlclient==2.1.1
 urllib3==2.0.4
+debugpy==1.8.16

@@ -172,6 +172,16 @@ def remove4rmemory(*args):
     if args:
         memory("remove", *args) 
 
+def get_cli_args() -> dict:
+    """
+    this Helper function retrieve the arguments that has been passed the the cli command when app is started.
+
+    ### Returns:
+        - `@dict`: dictionary of the arguments
+    """
+
+    return memory().get("additionalArgs", {})
+
 def get_os_distro() -> str:
     """
     ### Explanation:
@@ -196,7 +206,7 @@ def start_application(supervisor:str = "cli", debug :bool = False, **kwargs) -> 
     """
     additionals= ""
     for k,v in kwargs.items():
-        if v: additionals += f" {k}=" +v
+        if v: additionals += f" {k}=" +str(v)
     isDebug = "True" if debug else "False"
     match supervisor:
         case "cli":
@@ -214,9 +224,9 @@ def getDatabaseConnection(dbDriver = "mysql", *, debug:bool = False, **kwargs)->
     This function it serves the db connection for peewee BaseModel.
     """
     db = memory().get("db", False)
-    debugMsg("Creating Database Connection {}", ( "'already Created'" if db else "") , Force = debug)
+    # debugMsg("Creating Database Connection {}", ( "'already Created'" if db else "") , Force = debug)
     if not db: 
-        debugMsg("Database Connection Created", Force=debug)
+        # debugMsg("Database Connection Created", Force=debug)
         db = SqliteDatabase(kwargs.get("dbpath")) if not dbDriver == "mysql" else MySQLDatabase(kwargs.get("mysqldbname"),user=kwargs.get("mysqldbun"), host=kwargs.get("mysqldbhost"), password=kwargs.get("mysqldbpw"))
         add2memory(db=db)
 

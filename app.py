@@ -4,13 +4,14 @@ from events.events import events as ev
 from commands.commands import commands
 from App.typehints import apptypehints
 class application(apptypehints):
-    def __init__(self, debug:bool = False, supervisor:str="", specific_processes:str = "", specific_env:str="") -> None:
+    def __init__(self, debug:bool = False, supervisor:str="", specific_processes:str = "", specific_env:str="", **additionalArgs) -> None:
         super().__init__()
 
         #1 Register Args
         if supervisor: add2memory(supervisor=supervisor)
         if specific_env: add2memory(specific_env=specific_env)
         if specific_processes: add2memory(specific_processes=specific_processes)
+        add2memory(additionalArgs=additionalArgs)
         
         #2 App info
         self.AppName = env("APP_NAME")

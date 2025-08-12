@@ -20,6 +20,31 @@ class BaseProcess(ABC):
         self.ginfo = {}
         self.set_status("Process Initilizing...")
         self.log_success("Process Initilizing...")
+        # ---------------------------------------------------------------
+        
+        if isDebug() and hasattr(self, "parallel"):
+            # ---- debugpy dev hook (only active when DEBUG_SUBPROCESS=1) ----
+            cliArgs = get_cli_args()
+            try:
+                import debugpy
+                # choose a base port or allow override via env
+                base_port = int(cliArgs.get("debug_port_base", 5678))
+                # make a stable / unique-ish port per process (avoid collisions)
+                port = base_port + (os.getpid() % 1000)
+                host = cliArgs.get("debug_host","0.0.0.0").lower()
+                debugpy.listen((host, port))
+                self.set_process_ginfo("debug_host", host)
+                self.set_process_ginfo("debug_port", port)
+                self.debugMsg(f"debugpy listening on {host}:{port} (pid={os.getpid()})")
+                # Optionally wait until you attach before continuing
+                # if os.environ.get("WAIT_FOR_DEBUGGER", "").lower() in ("1", "true"):
+                #     print("[DEBUG] waiting for debugger to attach...")
+                #     debugpy.wait_for_client()
+                #     print("[DEBUG] debugger attached, continuing...")
+
+            except Exception as e:
+                print("[DEBUG] couldn't start debugpy:", e)
+        # ---------------------------------------------------------------
         self.initilize(*args)
         self.set_status("Process Initilized")
         self.log_success("Process Initilized")
