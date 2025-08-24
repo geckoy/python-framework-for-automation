@@ -1,6 +1,8 @@
 from multiprocessing import Process, Event, Manager
 from time import sleep
 from App.Helpers import *
+import threading
+
 class BaseParallel:
     """
     ### Explanation:
@@ -128,24 +130,35 @@ class BaseParallel:
         None
         """
         try:
-            obj = cls(logger, cat_name, name, *args, Parallel_args = Shared_state)
+            obj = cls(logger, cat_name, name, *args, Parallel_args=Shared_state)
             attr = getattr(obj, clsattr)
-            while True:
-                try:
-                    if stopEv.is_set(): 
-                            obj.app_close()
-                            self.parallel_issuccess_stopEv.set()
-                            break
 
+            def run_attr():
+                while not stopEv.is_set():
                     if not pauseEv.is_set():
-                        attr()
-                        sleep(0.01)
+                        try:
+                            attr()
+                        except Exception as e:
+                            # handle exception if needed
+                            pass
                     else:
-                        sleep(10)
-                except KeyboardInterrupt:
-                    pass
-        except BaseException as err: 
-            logE(getLogging(logger["name"], logger["path"]),f"Process of {cat_name} '{name}' catched an error", traceback.format_exc(), err)
+                        sleep(0.1)
+
+            worker = threading.Thread(target=run_attr, daemon=True)
+            worker.start()
+
+            # Monitor loop
+            while not stopEv.is_set():
+                sleep(0.1)
+
+            # cleanup
+            obj.app_close()
+            self.parallel_issuccess_stopEv.set()
+
+        except BaseException as err:
+            logE(getLogging(logger["name"], logger["path"]),
+                f"Process of {cat_name} '{name}' catched an error",
+                traceback.format_exc(), err)
         
     def parallel_status(self) -> str|None:
         res = None
